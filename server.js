@@ -47,7 +47,7 @@ app.use(requestTimeout(config));
 
 app.use(cors(config.corsOptions));
 app.use(express.json({ limit: '100kb' }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1h', etag: true }));
 
 const pool = createPool();
 const sessionStore = createSessionStore(pool);
