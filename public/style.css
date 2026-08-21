@@ -24,10 +24,10 @@
        ACCENTS & CORES SEMÂNTICAS (Vibrantes no Dark Mode)
        Cores ajustadas em saturação/luminosidade para sobressair no fundo escuro
        ══════════════════════════════════════════════ */
-    --bc-accent: #10b981;        /* Esmeralda vibrante (Emerald 500) */
-    --bc-amber: #38bdf8;         /* Azul celeste/ardósia vibrante para admin (Sky 400) */
-    --bc-green: #84cc16;         /* Verde-lima/oliva moderno para dinheiro (Lime 500) */
-    --bc-red: #f87171;           /* Vermelho claro para alertas/danger (Red 400) */
+    --bc-accent: #22c55e;        /* Esmeralda vibrante (Emerald 500) */
+    --bc-amber: #0ea5e9;         /* Azul celeste/ardósia vibrante para admin (Sky 400) */
+    --bc-green: #22c55e;         /* Verde-lima/oliva moderno para dinheiro (Lime 500) */
+    --bc-red: #ef4444;           /* Vermelho claro para alertas/danger (Red 400) */
     
     --bc-mono: 'Share Tech Mono', monospace;
     --bc-display: 'Exo 2', sans-serif;
@@ -66,7 +66,7 @@
     /* Elevação e sombras */
     --sh-1: 0 2px 4px rgba(0, 0, 0, 0.4), 0 6px 16px rgba(0, 0, 0, 0.3);
     --sh-2: 0 16px 48px rgba(0, 0, 0, 0.6);
-    --ring: 0 0 0 3px rgba(16, 185, 129, 0.25);
+    --ring: 0 0 0 3px rgba(34, 197, 94, 0.25);
 
     --dur: 140ms;
     --ease: cubic-bezier(.2, .6, .2, 1);
@@ -346,7 +346,7 @@ body {
     cursor: pointer;
 }
 
-.btn-login:hover { background: #63d9a8; }
+.btn-login:hover { background: #4ade80; }
 .btn-login:active { transform: scale(.98); }
 
 .login-hint {
