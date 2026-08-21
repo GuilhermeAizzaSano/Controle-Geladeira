@@ -140,10 +140,10 @@ body {
 /* ── Cabeçalho de tela unificado ──────────────────────────── */
 
 .screen-header {
-    background: var(--bc-surface);
-    border: 1px solid var(--bc-border);
+    background: transparent;
+    border: none;
     border-radius: var(--r-md);
-    padding: var(--sp-4) var(--sp-5);
+    padding: var(--sp-2) 0 var(--sp-3) 0;
     margin-bottom: var(--sp-4);
     display: flex;
     align-items: center;
@@ -151,7 +151,7 @@ body {
     flex-wrap: wrap;
 }
 
-.screen-header--admin { border-color: rgba(130, 164, 196, .18); }
+.screen-header--admin { border: none; }
 
 .screen-header-title {
     font-weight: 700;
