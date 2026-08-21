@@ -61,12 +61,13 @@ registerRegion('usuarios-body', {
 
   data: usuarios => html`${usuarios.map(
     u => html`
-    <tr>
+    <tr class="${u.ativo ? '' : 'row-inativo'}">
       <td data-label="CÓDIGO">
-        <span class="code-badge">${String(u.codigo_acesso).padStart(6, '0')}</span>
+        <span class="code-badge ${u.ativo ? '' : 'code-badge--muted'}">${String(u.codigo_acesso).padStart(6, '0')}</span>
       </td>
       <td data-label="NOME" style="font-weight:600;">
         ${u.nome}${raw(u.is_admin ? ' <span class="role-badge">Admin</span>' : '')}
+        ${raw(!u.ativo ? ' <span class="inativo-inline-label">(Inativo)</span>' : '')}
       </td>
       <td data-label="STATUS">
         <span class="status-badge ${u.ativo ? 'status-ativo' : 'status-inativo'}">
@@ -82,12 +83,12 @@ registerRegion('usuarios-body', {
             data-codigo="${u.codigo_acesso}"
             data-isadmin="${u.is_admin ? 'true' : 'false'}">${raw(icon('pencil'))} Editar</button>
 
-          <button class="btn-zerar"
+          <button class="${u.ativo ? 'btn-zerar' : 'btn-restore'}"
             data-action="toggle-usuario"
             data-id="${u.id}"
             data-nome="${u.nome}"
             data-ativo="${u.ativo ? 'true' : 'false'}">
-            ${raw(u.ativo ? icon('close') + ' Inativar' : icon('restore') + ' Ativar')}
+            ${raw(u.ativo ? icon('close') + ' Inativar' : icon('restore') + ' Reativar')}
           </button>
 
           <button class="btn-remove"

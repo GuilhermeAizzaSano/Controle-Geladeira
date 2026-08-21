@@ -60,11 +60,14 @@ registerRegion('produtos-body', {
 
   data: produtos => html`${produtos.map(
     p => html`
-    <tr>
+    <tr class="${p.ativo ? '' : 'row-inativo'}">
       <td data-label="ID"
           style="font-family:var(--bc-mono);color:var(--bc-muted);">${p.id}</td>
       <td data-label="NOME"
-          style="font-weight:600;">${p.nome}</td>
+          style="font-weight:600;">
+        ${p.nome}
+        ${raw(!p.ativo ? ' <span class="inativo-inline-label">(Inativo)</span>' : '')}
+      </td>
       <td data-label="PREÇO"
           style="font-family:var(--bc-mono);color:var(--bc-green);">${fmtBRL(p.preco)}</td>
       <td data-label="STATUS">
@@ -81,12 +84,12 @@ registerRegion('produtos-body', {
             data-preco="${Number(p.preco)}"
             data-ativo="${p.ativo ? 'true' : 'false'}">${raw(icon('pencil'))} Editar</button>
 
-          <button class="btn-zerar"
+          <button class="${p.ativo ? 'btn-zerar' : 'btn-restore'}"
             data-action="toggle-produto"
             data-id="${p.id}"
             data-nome="${p.nome}"
             data-ativo="${p.ativo ? 'true' : 'false'}">
-            ${raw(p.ativo ? icon('close') + ' Inativar' : icon('restore') + ' Ativar')}
+            ${raw(p.ativo ? icon('close') + ' Inativar' : icon('restore') + ' Reativar')}
           </button>
 
           <button class="btn-remove"
