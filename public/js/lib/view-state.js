@@ -31,6 +31,24 @@ export function computeTabClassName(tab) {
 
 /** Ativa a tela e a aba correspondentes a `tab`, desativando as demais. */
 export function applyScreen(tab) {
+  const switchDOM = () => {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + tab)?.classList.add('active');
+
+    document.querySelectorAll('.bc-tabs .nav-link').forEach(l => l.classList.remove('active'));
+    const tabsEl = document.getElementById('main-tabs');
+    if (tabsEl) tabsEl.className = computeTabClassName(tab);
+    document.getElementById('tab-' + tab)?.classList.add('active');
+  };
+
+  if (document.startViewTransition && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.startViewTransition(() => switchDOM());
+  } else {
+    switchDOM();
+  }
+}
+
+function _unusedApplyScreenOriginal(tab) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + tab)?.classList.add('active');
 

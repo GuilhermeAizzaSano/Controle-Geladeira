@@ -328,6 +328,7 @@ body {
 }
 
 .btn-login {
+    min-height: 48px;
     background: var(--bc-accent);
     color: #000;
     font-family: var(--bc-display);
@@ -867,6 +868,72 @@ body {
 }
 
 /* ── Modais ────────────────────────────────────────────────── */
+
+
+/* ══════════════════════════════════════════════
+   SCROLLBAR MODERNA / DARK
+   ══════════════════════════════════════════════ */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--bc-border) var(--bc-bg);
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bc-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bc-border);
+    border-radius: var(--r-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--bc-border-2);
+}
+
+
+/* ── Focus Visible Humanizado ─────────────────── */
+:focus-visible {
+    outline: 2px solid var(--bc-accent) !important;
+    outline-offset: 2px;
+}
+
+/* ── Validação Humanizada de Formulários ──────── */
+.login-input:user-invalid,
+.bc-input:user-invalid {
+    border-color: var(--ctx-danger) !important;
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.25) !important;
+}
+
+/* ── View Transitions Efeito Cross-Fade Suave ─── */
+::view-transition-old(root) {
+    animation: 140ms cubic-bezier(0.2, 0.6, 0.2, 1) both fadeOut;
+}
+
+::view-transition-new(root) {
+    animation: 180ms cubic-bezier(0.2, 0.6, 0.2, 1) both fadeIn;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+
+.modal-backdrop.show {
+    backdrop-filter: blur(6px);
+    background-color: rgba(10, 11, 14, 0.75);
+}
 
 .modal-content {
     background: linear-gradient(160deg, var(--bc-surface) 0%, #131316 100%);
