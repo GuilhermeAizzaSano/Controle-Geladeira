@@ -1,4 +1,4 @@
-﻿# Controle de Geladeira
+# Controle de Geladeira
 
 Sistema web para controle e gestão de consumo de bebidas/produtos em ambiente interno (escritório, empresa). Os usuários registram seus consumos via código de acesso individual de 6 dígitos e acompanham o histórico de compras em tempo real. Administradores possuem painel dedicado para gestão de produtos, usuários e relatórios consolidados.
 
@@ -8,20 +8,25 @@ Sistema web para controle e gestão de consumo de bebidas/produtos em ambiente i
 - **Acesso Administrativo:** Autenticação separada para administradores com senha criptografada.
 - **Loja e Registro de Consumo:** Seleção ágil de itens e quantidades pelos próprios usuários.
 - **Favoritos:** Destaque dos produtos favoritos do usuário no topo da tela inicial.
-- **Histórico Individual:** Extrato paginado de compras com total acumulado.
+- **Histórico Individual:** Extrato paginado de compras com total acumulado e congelamento de preço histórico no momento da compra.
 - **Painel Administrativo Completo:**
-  - Relatório geral consolidado de consumo e saldo por usuário.
-  - Extrato detalhado com histórico de itens consumidos.
+  - Relatório geral consolidado de consumo e saldo por usuário com cache otimizado.
+  - Extrato detalhado com histórico de itens consumidos e auditoria.
   - CRUD completo de usuários (cadastro, edição, inativação e exclusão).
   - CRUD completo de produtos (cadastro, alteração de preço, inativação e exclusão).
-  - Zeragem de saldo (individual ou coletiva).
-  - Soft-hide de lançamentos de consumo (ocultar/restaurar registros com log de auditoria).
+  - Zeragem de saldo desacoplada: individual (por usuário) ou em massa (atômica no PostgreSQL apenas para saldos devedores).
+  - Soft-hide de lançamentos de consumo (ocultar/restaurar registros com coluna booleana indexada e log de auditoria).
 - **Segurança & Performance:**
   - Rate limiting contra força bruta em logins e rotas de administração.
   - Sessões persistidas em banco de dados PostgreSQL com tokens seguros.
   - Cookies `HttpOnly` com proteção CSRF via Double-Submit Cookie.
   - Headers HTTP de segurança (CSP, X-Frame-Options, Referrer-Policy, etc.).
-  - Suporte opcional a Materialized View para aceleração de relatórios.
+  - Cache HTTP estático com ETag para componentes e scripts.
+  - Materialized View com criação automática e atualização com debounce inteligente.
+- **UI/UX Moderna:**
+  - Transições suaves de tela via View Transitions API nativa.
+  - Paleta de cores corporativa integrada e clean.
+  - Scrollbars customizadas para modo escuro e indicadores acessíveis de `:focus-visible`.
 
 ---
 
@@ -98,46 +103,21 @@ Basta criar a base de dados no PostgreSQL:
 CREATE DATABASE bebidas_db;
 ```
 
-> **Automação:** Todas as tabelas, índices e migrações de schema são executados e validados **automaticamente** no primeiro boot da aplicação, de forma idempotente.
+> **Automação Completa:** Todas as tabelas, colunas, índices, migrações de schema e a **Materialized View (`mv_relatorio`)** são criados e validados **automaticamente e de forma idempotente** na inicialização do servidor.
 
 ### Tabelas Principais:
 - `usuarios`: Cadastro de usuários, permissões e hash de senha administrativa.
-- `produtos`: Itens disponíveis e histórico de preços.
-- `consumo`: Registro das compras efetuadas.
+- `produtos`: Itens disponíveis, status e histórico de preços.
+- `consumo`: Registro das compras efetuadas, com congelamento de preço histórico (`preco`) e coluna booleana indexada de visibilidade (`oculto`).
 - `zeragens`: Marcações de fechamento/quitação de saldo por usuário.
-- `consumos_ocultos`: Soft-hide de lançamentos com auditoria do administrador.
-- `favoritos`: Produtos destacados por usuário.
-- `sessions`: Controle de sessões ativas persistidas.
+- `consumos_ocultos`: Log de auditoria dos registros de consumo ocultados pelo administrador.
+- `favoritos`: Produtos destacados por usuário com ordenação rápida.
+- `sessions`: Controle de sessões ativas persistidas no banco.
 
-### Materialized View (Opcional - Recomendado para Grande Volume)
-
-```sql
-CREATE MATERIALIZED VIEW mv_relatorio AS
-  WITH ultimas_zeragens AS (
-    SELECT id_usuario, MAX(data_hora) AS data_corte
-    FROM zeragens GROUP BY id_usuario
-  ),
-  agg AS (
-    SELECT c.id_usuario,
-           SUM(COALESCE(c.preco, p.preco))  AS total_gasto,
-           COUNT(c.id)   AS total_itens
-    FROM consumo c
-    JOIN produtos p ON p.id = c.id_produto
-    LEFT JOIN consumos_ocultos co ON co.id_consumo = c.id
-    LEFT JOIN ultimas_zeragens uz ON uz.id_usuario = c.id_usuario
-    WHERE co.id_consumo IS NULL
-      AND c.data_hora > COALESCE(uz.data_corte, '1970-01-01')
-    GROUP BY c.id_usuario
-  )
-  SELECT u.id, u.nome, u.codigo_acesso,
-         COALESCE(a.total_gasto, 0)::FLOAT AS total_gasto,
-         COALESCE(a.total_itens, 0)::INT   AS total_itens
-  FROM usuarios u
-  LEFT JOIN agg a ON a.id_usuario = u.id
-  WHERE u.is_admin IS NOT TRUE;
-
-CREATE UNIQUE INDEX ON mv_relatorio (id);
-```
+### Estratégia de Performance (Materialized View & Cache)
+- O relatório geral utiliza a Materialized View `mv_relatorio` com índice único para aceleração de leituras de agregação (`SUM` / `COUNT`).
+- A atualização da view utiliza `REFRESH MATERIALIZED VIEW CONCURRENTLY` com uma camada de **debounce assíncrono** de 2.5 segundos, evitando múltiplos recálculos pesados durante picos de compras concorrentes.
+- Durante a janela de atualização, a aplicação lê automaticamente do *fallback* direto nas tabelas, garantindo consistência e dados sempre atualizados para o administrador.
 
 ---
 
@@ -173,25 +153,24 @@ Utiliza o test runner nativo do Node.js (`node:test`), validando rotinas de crip
 ├── server.js                 # Inicialização do servidor Express, rotas e boot
 ├── routes/
 │   ├── public-routes.js      # Rotas de usuário (login, compras, histórico)
-│   └── admin-routes.js       # Rotas do painel administrativo
+│   └── admin-routes.js       # Rotas do painel administrativo (relatórios, produtos, usuários, zeragem)
 ├── lib/
 │   ├── config.js             # Carregamento e validação das variáveis de ambiente
 │   ├── db.js                 # Conexão e pool do PostgreSQL
-│   ├── queries.js            # Prepared statements e consultas SQL
-│   ├── schema.js             # Criação e atualização automática das tabelas/índices
+│   ├── queries.js            # Prepared statements e consultas SQL otimizadas
+│   ├── schema.js             # Criação e atualização automática das tabelas, índices e view
 │   ├── auth.js               # Middlewares de autenticação, admin e validação CSRF
 │   ├── admin-password.js     # Hashing e verificação de senha admin (scrypt)
 │   ├── session-store.js      # Gerenciamento de sessões persistidas no banco
 │   ├── security-headers.js   # Headers CSP, CORS e controle de timeout
 │   ├── rate-limit.js         # Controle de taxa de requisições por IP
-│   └── relatorio-cache.js    # Gerenciamento do cache dos relatórios
+│   └── relatorio-cache.js    # Gerenciamento de cache e debounce da Materialized View
 ├── public/                   # Frontend estático (HTML/CSS/JS)
 │   ├── index.html            # Estrutura base da interface
-│   ├── style.css             # Folha de estilos
+│   ├── style.css             # Folha de estilos, tokens de cor e scrollbars
 │   ├── partials/             # Componentes de telas e modais carregados dinamicamente
 │   └── js/                   # Módulos JavaScript (ES Modules nativos)
 ├── scripts/                  # Scripts auxiliares de manutenção e banco
-├── test/                     # Testes unitários automatizados
+├── test/                     # Testes unitários automatizados (node:test)
 └── .env.example              # Modelo de configuração de variáveis de ambiente
 ```
-
