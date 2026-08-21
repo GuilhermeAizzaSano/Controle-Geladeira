@@ -13,6 +13,8 @@ function createAdminRouter(deps) {
     ensureConsumosOcultosTable,
     invalidateAndRefreshRelatorio,
     getAdminRelatorioRows,
+    zerarSaldoIndividual,
+    zerarSaldosEmMassa,
     zerarTodosElegiveis,
     withTransaction,
     requireCsrf,

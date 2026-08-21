@@ -493,9 +493,9 @@ export function onDetailBodyClick(e) {
   );
 }
 
-// ── ZERAR CONTA ───────────────────────────────────────────────
+// ── ZERAGEM DE SALDO (INDIVIDUAL & EM MASSA) ─────────────────
 
-function openZerarModal(id, nome) {
+export function openZerarIndividualModal(id, nome) {
   state.zerarAllUsers = false;
   state.zerarUserId = id;
   document.getElementById('zerar-title').textContent = 'Zerar saldo';
@@ -507,7 +507,10 @@ function openZerarModal(id, nome) {
   state.zerarModal.show();
 }
 
-export function openZerarTodosModal() {
+// Mantém compatibilidade com nome anterior
+export const openZerarModal = openZerarIndividualModal;
+
+export function openZerarEmMassaModal() {
   const totalElegiveis = allAdminReport.filter(r => Number(r.total_gasto) > 0).length;
   if (totalElegiveis === 0) {
     showToast('Nenhum usuário com saldo atual para zerar.', 'error');
@@ -526,21 +529,31 @@ export function openZerarTodosModal() {
   state.zerarModal.show();
 }
 
-// Usa state.detailUserNome (estado dedicado) em vez de parsear o textContent do DOM,
-// eliminando a dependência de formato do título e o risco de quebra silenciosa.
+// Mantém compatibilidade com nome anterior
+export const openZerarTodosModal = openZerarEmMassaModal;
+
 export function openZerarFromDetail() {
   if (!state.detailUserId || !state.detailUserNome) return;
 
-  state.zerarAllUsers = false;
-  state.zerarUserId = state.detailUserId;
-  document.getElementById('zerar-title').textContent = 'Zerar saldo';
-  document.getElementById('zerar-prompt').textContent = 'Confirma zerar o saldo atual de';
-  document.getElementById('zerar-nome').textContent = state.detailUserNome;
-  document.getElementById('zerar-description').innerHTML =
-    'Os consumos anteriores deixarão de contar no saldo atual.<br>Os dados serão preservados no banco.';
-  document.getElementById('btn-confirm-zerar').textContent = 'Zerar saldo';
+  openZerarIndividualModal(state.detailUserId, state.detailUserNome);
   state.detailModal.hide();
-  state.zerarModal.show();
+}
+
+async function executarZeragemEmMassa() {
+  const res = await apiCall('POST', '/admin/zerar-em-massa');
+  state.zerarModal.hide();
+  showToast(res.message, 'success');
+  state.zerarAllUsers = false;
+  loadAdmin();
+}
+
+async function executarZeragemIndividual(userId) {
+  await apiCall('POST', `/admin/zerar-individual/${userId}`);
+  state.zerarModal.hide();
+  showToast('Saldo zerado com sucesso!', 'success');
+  state.zerarUserId = null;
+  state.zerarAllUsers = false;
+  loadAdmin();
 }
 
 export async function confirmZerar() {
@@ -549,20 +562,10 @@ export async function confirmZerar() {
   setBtnLoading(btn, true, 'Aguarde...');
   try {
     if (state.zerarAllUsers) {
-      const res = await apiCall('POST', '/admin/zerar-todos');
-      state.zerarModal.hide();
-      showToast(res.message, 'success');
-      state.zerarAllUsers = false;
-      loadAdmin();
-      return;
+      await executarZeragemEmMassa();
+    } else {
+      await executarZeragemIndividual(state.zerarUserId);
     }
-
-    await apiCall('POST', `/admin/zerar/${state.zerarUserId}`);
-    state.zerarModal.hide();
-    showToast('Saldo zerado com sucesso!', 'success');
-    state.zerarUserId = null;
-    state.zerarAllUsers = false;
-    loadAdmin();
   } catch (err) {
     showToast(err.message, 'error');
   } finally {
