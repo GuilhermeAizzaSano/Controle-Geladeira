@@ -1,0 +1,54 @@
+  <!-- ADMIN — CONTROLE -->
+  <div id="screen-admin" class="screen container-fluid py-3 px-3" style="max-width:1100px;">
+    <div class="screen-header screen-header--admin">
+      <span class="admin-badge">Controle</span>
+      <div>
+        <div class="screen-header-title">Painel de controle</div>
+        <div class="screen-header-sub">Clique em um usuário para ver detalhes dos consumos</div>
+      </div>
+      <div class="screen-header-actions">
+        <button class="btn-bc btn-bc--ghost btn-bc--danger" id="btn-zerar-todos">
+          <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-close"/></svg>
+          Zerar todos
+        </button>
+        <div class="refresh-wrap">
+          <span class="refresh-updated-at" id="admin-updated-at"></span>
+          <button class="btn-refresh" id="btn-refresh-admin">
+            <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-refresh"/></svg>
+            Atualizar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-search-wrap">
+      <svg class="ic" width="16" height="16" aria-hidden="true"><use href="#i-search"/></svg>
+      <input type="text" id="admin-search" class="bc-input" placeholder="Pesquisar usuário por nome ou código..."
+        autocomplete="off" />
+    </div>
+
+    <div class="admin-table-wrap">
+      <div id="admin-summary-bar" class="d-none"></div>
+      <table class="table admin-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Usuário</th>
+            <th>Itens</th>
+            <th>Total gasto</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="admin-body">
+          <tr>
+            <td colspan="5">
+              <div class="empty-state">
+                <div class="bc-loader mx-auto"></div>
+                <div class="mt-2">Carregando...</div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>

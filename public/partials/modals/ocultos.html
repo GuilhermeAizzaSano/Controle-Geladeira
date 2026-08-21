@@ -1,0 +1,47 @@
+  <!-- MODAL ITENS OCULTOS (arquivo / auditoria) -->
+  <div class="modal fade ocultos-modal" id="ocultosModal" tabindex="-1" aria-labelledby="ocultos-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header modal-header--archive">
+          <div>
+            <div class="modal-title" id="ocultos-title">Itens ocultos</div>
+            <div class="modal-subtitle">Consumos zerados e ocultados — preservados no banco, fora das telas e relatórios</div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="detail-table-frame">
+            <div class="detail-table-scroll" style="max-height:320px;">
+              <table class="table detail-table mb-0">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Produto</th>
+                    <th>Valor</th>
+                    <th>Auditoria</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="ocultos-body">
+                  <tr>
+                    <td colspan="5">
+                      <div class="empty-state">
+                        <div class="bc-loader mx-auto"></div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="ocultos-pagination" class="bc-pagination bc-pagination--framed pag-steel d-none"></div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-cancel-modal" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>

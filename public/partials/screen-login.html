@@ -1,0 +1,36 @@
+  <!-- LOGIN -->
+  <div id="screen-login" class="screen active">
+    <div class="login-card">
+      <div class="login-logo"><span class="accent">Con</span>trole</div>
+      <div class="login-title">Acesso interno</div>
+
+      <div id="login-steps" class="login-steps" style="display:none;">
+        <span class="login-step done">
+          <svg class="ic" width="12" height="12" aria-hidden="true"><use href="#i-check"/></svg>
+          Código
+        </span>
+        <span class="login-step-sep"></span>
+        <span class="login-step active">Verificação</span>
+      </div>
+
+      <div id="login-error" class="alert alert-danger d-none py-2"
+        style="font-size:.85rem;border-radius:var(--r-md);"></div>
+
+      <div class="mb-3">
+        <input type="text" id="login-code" class="form-control login-input" inputmode="numeric" pattern="[0-9]{6}"
+          maxlength="6" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="" />
+      </div>
+
+      <div id="login-admin-wrap" class="mb-3 d-none">
+        <input type="password" id="login-admin-password" class="form-control login-input"
+          autocomplete="off" placeholder="senha de administrador" />
+      </div>
+
+      <button class="btn-login" id="login-btn">
+        <span id="login-btn-text">Entrar</span>
+        <span id="login-loader" class="bc-loader d-none" style="width:16px;height:16px;"></span>
+      </button>
+
+      <div class="login-hint text-center" id="login-hint">Digite seu código de acesso</div>
+    </div>
+  </div>

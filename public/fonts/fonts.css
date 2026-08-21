@@ -1,0 +1,28 @@
+@font-face {
+  font-family: 'Exo 2';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/7cH1v4okm5zmbvwkAx_sfcEuiD8jvvKcPg.ttf.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Exo 2';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(/fonts/7cH1v4okm5zmbvwkAx_sfcEuiD8jYPWcPg.ttf.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Exo 2';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(/fonts/7cH1v4okm5zmbvwkAx_sfcEuiD8jWfWcPg.ttf.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Share Tech Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/J7aHnp1uDWRBEqV98dVQztYldFc7pA.ttf.woff2) format('woff2');
+}

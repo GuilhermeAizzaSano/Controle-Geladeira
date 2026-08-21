@@ -1,0 +1,38 @@
+  <!-- MODAL PRODUTO -->
+  <div class="modal fade" id="produtoModal" tabindex="-1" aria-labelledby="produto-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="modal-title" id="produto-modal-title">Novo produto</span>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="produto-id">
+          <div class="mb-3">
+            <label class="bc-label">Nome do produto</label>
+            <input type="text" id="produto-nome" class="bc-input" placeholder="Ex: Cerveja Long Neck" maxlength="100">
+          </div>
+          <div class="mb-3">
+            <label class="bc-label">Preço (R$)</label>
+            <input type="text" id="produto-preco" class="bc-input" inputmode="decimal" placeholder="0.00"
+              autocomplete="off">
+          </div>
+          <div>
+            <label class="bc-label">Status</label>
+            <select id="produto-ativo" class="bc-input">
+              <option value="true">Ativo — aparece na loja</option>
+              <option value="false">Inativo — oculto na loja</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel-modal" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn-save ms-2" id="btn-save-produto">
+            <span id="save-produto-text">Salvar</span>
+            <span id="save-produto-loader" class="bc-loader d-none"
+              style="width:14px;height:14px;border-top-color:#000;"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>

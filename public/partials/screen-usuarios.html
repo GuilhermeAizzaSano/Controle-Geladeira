@@ -1,0 +1,45 @@
+  <!-- ADMIN — USUÁRIOS -->
+  <div id="screen-usuarios" class="screen container-fluid py-3 px-3" style="max-width:1100px;">
+    <div class="screen-header screen-header--admin">
+      <span class="admin-badge">Usuários</span>
+      <div>
+        <div class="screen-header-title">Gerenciar usuários</div>
+        <div class="screen-header-sub">Cadastre, edite, inative ou exclua usuários do sistema</div>
+      </div>
+      <div class="screen-header-actions">
+        <button class="btn-new" id="btn-new-usuario">
+          <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-plus"/></svg>
+          Novo usuário
+        </button>
+      </div>
+    </div>
+
+    <div class="admin-search-wrap">
+      <svg class="ic" width="16" height="16" aria-hidden="true"><use href="#i-search"/></svg>
+      <input type="text" id="usuarios-search" class="bc-input" placeholder="Pesquisar usuário por nome..."
+        autocomplete="off" />
+    </div>
+
+    <div class="admin-table-wrap">
+      <table class="table admin-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nome</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="usuarios-body">
+          <tr>
+            <td colspan="4">
+              <div class="empty-state">
+                <div class="bc-loader mx-auto"></div>
+                <div class="mt-2">Carregando...</div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>

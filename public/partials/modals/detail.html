@@ -1,0 +1,83 @@
+  <!-- MODAL DETALHES USUÁRIO -->
+  <div class="modal fade detail-modal" id="detailModal" tabindex="-1" aria-labelledby="detail-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header modal-header--admin">
+          <div>
+            <div class="modal-title" id="detail-title">—</div>
+            <div class="modal-subtitle" id="detail-subtitle"></div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="row g-2 mb-3">
+            <div class="col-12 col-sm-4">
+              <div class="detail-stat-box">
+                <div class="detail-stat-value detail-stat-value--admin" id="detail-total">R$ 0,00</div>
+                <div class="detail-stat-label">Total gasto</div>
+              </div>
+            </div>
+            <div class="col-6 col-sm-4">
+              <div class="detail-stat-box">
+                <div class="detail-stat-value detail-stat-value--user" id="detail-count">0</div>
+                <div class="detail-stat-label">Itens consumidos</div>
+              </div>
+            </div>
+            <div class="col-6 col-sm-4">
+              <div class="detail-stat-box">
+                <div class="detail-stat-value detail-stat-value--money" id="detail-avg">R$ 0,00</div>
+                <div class="detail-stat-label">Ticket médio</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="detail-fav-wrap" class="d-none mb-3 detail-fav">
+            <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-star"/></svg>
+            Favorito: <strong id="detail-fav"></strong>
+          </div>
+
+          <div class="detail-table-frame">
+            <div class="detail-table-scroll">
+              <table class="table detail-table mb-0">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Produto</th>
+                    <th>Valor</th>
+                    <th>Data/hora</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="detail-body">
+                  <tr>
+                    <td colspan="5">
+                      <div class="empty-state">
+                        <div class="bc-loader mx-auto"></div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="detail-pagination" class="bc-pagination bc-pagination--framed pag-amber d-none"></div>
+        </div>
+
+        <div class="modal-footer" style="justify-content:space-between;gap:.5rem;flex-wrap:wrap;">
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+            <button class="btn-zerar" id="detail-btn-zerar">
+              <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-close"/></svg>
+              Zerar saldo
+            </button>
+            <button class="btn-ver-ocultos" id="detail-btn-ocultos">
+              <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-archive"/></svg>
+              Itens ocultos<span class="ocultos-badge d-none" id="detail-ocultos-badge">0</span>
+            </button>
+          </div>
+          <button class="btn-cancel-modal" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>

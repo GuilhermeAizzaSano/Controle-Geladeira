@@ -1,0 +1,24 @@
+  <!-- MODAL ZERAR -->
+  <div class="modal fade" id="zerarModal" tabindex="-1" aria-labelledby="zerar-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:360px;">
+      <div class="modal-content">
+        <div class="modal-header modal-header--danger">
+          <span class="modal-title" id="zerar-title">Zerar saldo</span>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center py-3">
+          <div id="zerar-prompt" class="modal-eyebrow">Confirma zerar o saldo atual de</div>
+          <div style="font-size:var(--fs-xl);font-weight:700;margin:.5rem 0;" id="zerar-nome">—</div>
+          <div id="zerar-description" class="confirm-note" style="color:var(--bc-red);">
+            Os consumos anteriores deixarão de contar no saldo atual.<br>Os dados serão preservados no banco.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel-modal" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn ms-2 btn-danger-modal" id="btn-confirm-zerar">
+            Zerar saldo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>

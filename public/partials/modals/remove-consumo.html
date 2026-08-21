@@ -1,0 +1,26 @@
+  <!-- MODAL REMOVER ITEM DE CONSUMO -->
+  <div class="modal fade" id="removeConsumoModal" tabindex="-1" aria-labelledby="remove-consumo-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:360px;">
+      <div class="modal-content">
+        <div class="modal-header modal-header--danger">
+          <span class="modal-title" id="remove-consumo-title">Ocultar item</span>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center py-3">
+          <div class="modal-eyebrow">Confirma ocultar este lançamento de</div>
+          <div style="font-size:var(--fs-lg);font-weight:700;margin:.4rem 0;" id="remove-consumo-nome">—</div>
+          <div style="font-family:var(--bc-mono);font-size:var(--fs-xl);color:var(--bc-red);font-weight:700;"
+            id="remove-consumo-preco">R$ 0,00</div>
+          <div class="confirm-note">
+            Este lançamento deixará de aparecer nas telas e relatórios.<br>Os dados serão preservados no banco.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel-modal" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn ms-2 btn-danger-modal" id="btn-confirm-remove-consumo">
+            Ocultar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
