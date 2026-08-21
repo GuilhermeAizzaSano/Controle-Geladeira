@@ -24,7 +24,11 @@ let adminChallenge = null;
 function resetLoginUI() {
   adminChallenge = null;
   const codeInput = document.getElementById('login-code');
-  if (codeInput) codeInput.removeAttribute('readonly');
+  if (codeInput) {
+    codeInput.removeAttribute('readonly');
+    codeInput.value = '';
+  }
+  document.getElementById('login-code-wrap')?.classList.remove('d-none');
   document.getElementById('login-admin-wrap')?.classList.add('d-none');
   const pwInput = document.getElementById('login-admin-password');
   if (pwInput) pwInput.value = '';
@@ -161,7 +165,7 @@ async function doLogin() {
 
     if (data.requiresAdminPassword) {
       adminChallenge = data.challenge;
-      document.getElementById('login-code').setAttribute('readonly', '');
+      document.getElementById('login-code-wrap')?.classList.add('d-none');
       document.getElementById('login-admin-wrap').classList.remove('d-none');
       document.getElementById('login-admin-password').focus();
       document.getElementById('login-hint').textContent = 'segunda verificação';
