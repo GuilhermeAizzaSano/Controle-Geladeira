@@ -642,7 +642,7 @@ registerRegion('ocultos-body', {
       <td colspan="5">
         <div class="empty-state">
           <div class="empty-icon">${raw(icon('archive', 28))}</div>
-          <div>Nenhum item oculto</div>
+          <div>Nenhum item arquivado ou estornado</div>
         </div>
       </td>
     </tr>`,
@@ -653,9 +653,9 @@ registerRegion('ocultos-body', {
       const por = item.ocultado_por
         ? html`<span class="ocultos-audit-by">${item.ocultado_por}</span>`
         : html`<span class="ocultos-audit-by">—</span>`;
-      auditoria = html`ocultado por ${por}<br>${fmtDate(item.ocultado_em || item.data_hora)}`;
+      auditoria = html`estornado por ${por}<br>${fmtDate(item.ocultado_em || item.data_hora)}`;
     } else {
-      auditoria = html`<span class="ocultos-audit-by">arquivado (zeragem)</span><br>${fmtDate(item.data_hora)}`;
+      auditoria = html`<span class="ocultos-audit-by">quitado (saldo zerado)</span><br>${fmtDate(item.data_hora)}`;
     }
 
     const acao = html`
