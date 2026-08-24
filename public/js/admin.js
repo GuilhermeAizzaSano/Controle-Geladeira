@@ -649,26 +649,24 @@ registerRegion('ocultos-body', {
     </tr>`,
 
   data: (items, { offset }) => html`${items.map((item, i) => {
-    // Item ocultado manualmente → mostra auditoria + botão restaurar.
-    // Item arquivado por zeragem → leitura (sem restaurar individual).
     let auditoria;
-    let acao = raw('');
     if (item.oculto_manual) {
       const por = item.ocultado_por
         ? html`<span class="ocultos-audit-by">${item.ocultado_por}</span>`
         : html`<span class="ocultos-audit-by">—</span>`;
-      auditoria = html`ocultado por ${por}<br>${fmtDate(item.ocultado_em)}`;
-      acao = html`
-          <button class="btn-restore"
-                  data-action="restore-consumo"
-                  data-id="${item.id}"
-                  data-produto="${item.produto}"
-                  data-preco="${Number(item.preco)}">
-            ${raw(icon('restore'))} Restaurar
-          </button>`;
+      auditoria = html`ocultado por ${por}<br>${fmtDate(item.ocultado_em || item.data_hora)}`;
     } else {
       auditoria = html`<span class="ocultos-audit-by">arquivado (zeragem)</span><br>${fmtDate(item.data_hora)}`;
     }
+
+    const acao = html`
+      <button class="btn-restore"
+              data-action="restore-consumo"
+              data-id="${item.id}"
+              data-produto="${item.produto}"
+              data-preco="${Number(item.preco)}">
+        ${raw(icon('restore'))} Restaurar
+      </button>`;
     return html`
       <tr id="oculto-row-${item.id}">
         <td data-label="#"
