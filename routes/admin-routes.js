@@ -415,10 +415,9 @@ function createAdminRouter(deps) {
     }
   });
 
-  // Oculta um consumo (soft-hide): o registro permanece em `consumo` e apenas é
-  // marcado em `consumos_ocultos`, gravando qual admin executou a ação (auditoria).
-  // Retorna 404 quando o consumo não existe, senão { success: true }.
-  async function ocultarConsumo(consumoId, idAdmin) {
+  // Estorna um consumo (soft-hide): o registro permanece em `consumo` (oculto = TRUE)
+  // e é registrado em `consumos_ocultos` para auditoria de qual admin executou o estorno.
+  async function estornarConsumo(consumoId, idAdmin) {
     await ensureConsumosOcultosTable();
 
     const consumo = await pool.query(
@@ -440,85 +439,59 @@ function createAdminRouter(deps) {
     return { notFound: false };
   }
 
-  async function handleOcultar(req, res) {
+  async function handleEstornar(req, res) {
     const consumoId = parsePositiveInt(req.params.id);
     if (!consumoId) return res.status(400).json({ error: 'Registro inválido.' });
 
     try {
-      const { notFound } = await ocultarConsumo(consumoId, req.session.userId);
+      const { notFound } = await estornarConsumo(consumoId, req.session.userId);
       if (notFound)
         return res.status(404).json({ error: 'Registro de consumo não encontrado.' });
 
       res.json({ success: true });
     } catch (err) {
-      logError('/admin/consumo ocultar', err, req);
-      res.status(500).json({ error: 'Erro ao remover item.' });
+      logError('/admin/consumo estornar', err, req);
+      res.status(500).json({ error: 'Erro ao estornar item.' });
     }
   }
 
-  router.post('/consumo/:id/estornar', handleOcultar);
-  router.post('/consumo/:id/ocultar', handleOcultar);
+  // Reativa (des-estorna) um consumo: remove a marcação de `consumos_ocultos` e
+  // volta `oculto = FALSE`. Se o item for anterior à última zeragem, atualiza data_hora para NOW().
+  async function handleReativar(req, res) {
+    const consumoId = parsePositiveInt(req.params.id);
+    if (!consumoId) return res.status(400).json({ error: 'Registro inválido.' });
 
-  // Restaura (des-oculta) um consumo: remove a marcação de `consumos_ocultos`.
-  // O dado em `consumo` nunca foi apagado, então volta a aparecer nas telas.
-  router.post('/consumo/:id/reativar', async (req, res) => {
-      return handleReativar(req, res);
-    });
-    async function handleReativar(req, res) {
-      const consumoId = parsePositiveInt(req.params.id);
-      if (!consumoId) return res.status(400).json({ error: 'Registro inválido.' });
-      try {
-        await ensureConsumosOcultosTable();
-        await pool.query('UPDATE consumo SET oculto = FALSE WHERE id = $1', [consumoId]);
-        await pool.query('DELETE FROM consumos_ocultos WHERE id_consumo = $1', [consumoId]);
-        const consumoResult = await pool.query('SELECT id_usuario, data_hora FROM consumo WHERE id = $1', [consumoId]);
-        if (consumoResult.rows.length) {
-          const { id_usuario, data_hora } = consumoResult.rows[0];
-          const resetResult = await pool.query({ ...Q.LAST_RESET, values: [id_usuario] });
-          const lastReset = resetResult.rows[0]?.last_reset;
-          if (lastReset && new Date(data_hora) <= new Date(lastReset)) {
-            await pool.query('UPDATE consumo SET data_hora = NOW() WHERE id = $1', [consumoId]);
-          }
+    try {
+      await ensureConsumosOcultosTable();
+      await pool.query('UPDATE consumo SET oculto = FALSE WHERE id = $1', [consumoId]);
+      await pool.query('DELETE FROM consumos_ocultos WHERE id_consumo = $1', [consumoId]);
+
+      const consumoResult = await pool.query(
+        'SELECT id_usuario, data_hora FROM consumo WHERE id = $1',
+        [consumoId]
+      );
+      if (consumoResult.rows.length) {
+        const { id_usuario, data_hora } = consumoResult.rows[0];
+        const resetResult = await pool.query({ ...Q.LAST_RESET, values: [id_usuario] });
+        const lastReset = resetResult.rows[0]?.last_reset;
+        if (lastReset && new Date(data_hora) <= new Date(lastReset)) {
+          await pool.query('UPDATE consumo SET data_hora = NOW() WHERE id = $1', [consumoId]);
         }
-        await invalidateAndRefreshRelatorio();
-        res.json({ success: true });
-      } catch (err) {
-        logError('/admin/consumo restaurar', err, req);
-        res.status(500).json({ error: 'Erro ao restaurar item.' });
       }
+
+      await invalidateAndRefreshRelatorio();
+      res.json({ success: true });
+    } catch (err) {
+      logError('/admin/consumo reativar', err, req);
+      res.status(500).json({ error: 'Erro ao reativar item.' });
     }
-    router.post('/consumo/:id/restaurar', async (req, res) => {
-      const consumoId = parsePositiveInt(req.params.id);
-      if (!consumoId) return res.status(400).json({ error: 'Registro inválido.' });
+  }
 
-      try {
-        await ensureConsumosOcultosTable();
-
-        await pool.query('UPDATE consumo SET oculto = FALSE WHERE id = $1', [consumoId]);
-
-        await pool.query(
-          'DELETE FROM consumos_ocultos WHERE id_consumo = $1',
-          [consumoId]
-        );
-
-        const consumoResult = await pool.query('SELECT id_usuario, data_hora FROM consumo WHERE id = $1', [consumoId]);
-        if (consumoResult.rows.length) {
-          const { id_usuario, data_hora } = consumoResult.rows[0];
-          const resetResult = await pool.query({ ...Q.LAST_RESET, values: [id_usuario] });
-          const lastReset = resetResult.rows[0]?.last_reset;
-          if (lastReset && new Date(data_hora) <= new Date(lastReset)) {
-            await pool.query('UPDATE consumo SET data_hora = NOW() WHERE id = $1', [consumoId]);
-          }
-        }
-
-        await invalidateAndRefreshRelatorio();
-
-        res.json({ success: true });
-      } catch (err) {
-        logError('/admin/consumo restaurar', err, req);
-        res.status(500).json({ error: 'Erro ao restaurar item.' });
-      }
-    });
+  // Rotas canônicas e aliases retrocompatíveis
+  router.post('/consumo/:id/estornar', handleEstornar);
+  router.post('/consumo/:id/ocultar', handleEstornar);
+  router.post('/consumo/:id/reativar', handleReativar);
+  router.post('/consumo/:id/restaurar', handleReativar);
 
     router.get('/ocultos/:id_usuario', async (req, res) => {
     const userId = parsePositiveInt(req.params.id_usuario);
@@ -567,7 +540,7 @@ function createAdminRouter(deps) {
 
       res.json({ success: true, message: 'Conta zerada (dados preservados no banco).' });
     } catch (err) {
-      logError('/admin/zerar', err, req);
+      logError('/admin/zerar-individual', err, req);
       res.status(500).json({ error: 'Erro ao zerar conta.' });
     }
   });
@@ -598,7 +571,7 @@ function createAdminRouter(deps) {
         message: 'Saldos zerados com sucesso (dados preservados no banco).',
       });
     } catch (err) {
-      logError('/admin/zerar-todos', err, req);
+      logError('/admin/zerar-em-massa', err, req);
       res.status(500).json({ error: 'Erro ao zerar saldos.' });
     }
   });
