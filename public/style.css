@@ -29,6 +29,7 @@
     --bc-green: #22c55e;         /* Verde-lima/oliva moderno para dinheiro (Lime 500) */
     --bc-red: #ef4444;           /* Vermelho claro para alertas/danger (Red 400) */
     
+    --bc-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     --bc-mono: 'Share Tech Mono', monospace;
     --bc-display: 'Exo 2', sans-serif;
 
@@ -68,8 +69,8 @@
     --sh-2: 0 16px 48px rgba(0, 0, 0, 0.6);
     --ring: 0 0 0 3px rgba(34, 197, 94, 0.25);
 
-    --dur: 140ms;
-    --ease: cubic-bezier(.2, .6, .2, 1);
+    --dur: 150ms;
+    --ease: cubic-bezier(.16, 1, .3, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -93,10 +94,12 @@ html {
 body {
     margin: 0;
     background: var(--bc-bg);
-    font-family: var(--bc-display);
+    font-family: var(--bc-sans);
     font-size: var(--fs-md);
     color: var(--bc-text);
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .ic {
@@ -135,7 +138,21 @@ body {
 /* ── SCREENS ───────────────────────────────────────────────── */
 
 .screen { display: none; }
-.screen.active { display: block; }
+.screen.active {
+    display: block;
+    animation: screenFadeIn var(--dur) var(--ease) forwards;
+}
+
+@keyframes screenFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
 /* ── Cabeçalho de tela unificado ──────────────────────────── */
 
@@ -669,18 +686,18 @@ body {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    font-family: var(--bc-display);
+    font-family: var(--bc-sans);
     font-size: var(--fs-sm);
     font-weight: 600;
     border-radius: var(--r-sm);
     padding: 6px 14px;
     cursor: pointer;
     white-space: nowrap;
-    transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease), opacity var(--dur) var(--ease);
+    transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease), opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
     min-height: 32px;
 }
 
-.btn-bc:active:not(:disabled) { transform: scale(.98); }
+.btn-bc:active:not(:disabled) { transform: scale(.96); }
 .btn-bc:disabled { opacity: .35; cursor: not-allowed; }
 
 .btn-bc--ghost { background: transparent; border: 1px solid var(--bc-border); color: var(--bc-muted); }
@@ -694,19 +711,19 @@ body {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    font-family: var(--bc-display);
+    font-family: var(--bc-sans);
     font-weight: 600;
     font-size: var(--fs-sm);
     border-radius: var(--r-sm);
     padding: 4px 12px;
     cursor: pointer;
     white-space: nowrap;
-    transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease), opacity var(--dur) var(--ease);
+    transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease), opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
 }
 
 .btn-edit:active:not(:disabled), .btn-zerar:active:not(:disabled),
 .btn-remove:active:not(:disabled), .btn-restore:active:not(:disabled),
-.btn-ver-ocultos:active:not(:disabled) { transform: scale(.98); }
+.btn-ver-ocultos:active:not(:disabled) { transform: scale(.96); }
 
 .btn-edit {
     background: rgba(78, 199, 146, .08);
@@ -1362,7 +1379,7 @@ tr.row-inativo td[data-label="PREÇO"] {
 }
 
 .btn-refresh, .btn-new {
-    font-family: var(--bc-display);
+    font-family: var(--bc-sans);
     font-weight: 600;
     font-size: var(--fs-sm);
     border-radius: var(--r-sm);
@@ -1374,6 +1391,8 @@ tr.row-inativo td[data-label="PREÇO"] {
     transition: all var(--dur) var(--ease);
     min-height: 36px;
 }
+
+.btn-refresh:active:not(:disabled), .btn-new:active:not(:disabled) { transform: scale(.96); }
 
 .btn-refresh {
     background: rgba(78, 199, 146, .06);
@@ -1400,7 +1419,7 @@ tr.row-inativo td[data-label="PREÇO"] {
 }
 
 .btn-danger-modal, .btn-success-modal {
-    font-family: var(--bc-display);
+    font-family: var(--bc-sans);
     font-weight: 700;
     font-size: var(--fs-md);
     border: none;
@@ -1416,7 +1435,7 @@ tr.row-inativo td[data-label="PREÇO"] {
 .btn-success-modal { background: var(--ctx-money); color: #0d2113; }
 .btn-success-modal:hover { background: #b9cf87; }
 
-.btn-danger-modal:active, .btn-success-modal:active { transform: scale(.98); }
+.btn-danger-modal:active, .btn-success-modal:active { transform: scale(.96); }
 
 /* ── Foco visível ──────────────────────────────────────────── */
 

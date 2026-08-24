@@ -14,30 +14,809 @@
 
 <body>
 
-  <!--
-    Shell: cada placeholder abaixo é substituído pelo elemento real assim que
-    public/js/boot.js busca e injeta o parcial correspondente de
-    public/partials/. Ver public/js/partials.js para o mapeamento completo.
-  -->
-  <div data-partial="icon-sprite"></div>
-  <div data-partial="navbar"></div>
-  <div data-partial="screen-login"></div>
-  <div data-partial="screen-shop"></div>
-  <div data-partial="screen-admin"></div>
-  <div data-partial="screen-produtos"></div>
-  <div data-partial="screen-usuarios"></div>
-  <div data-partial="modal-buy"></div>
-  <div data-partial="modal-zerar"></div>
-  <div data-partial="modal-detail"></div>
-  <div data-partial="modal-produto"></div>
-  <div data-partial="modal-usuario"></div>
-  <div data-partial="modal-remove-consumo"></div>
-  <div data-partial="modal-ocultos"></div>
-  <div data-partial="modal-restore-consumo"></div>
-  <div data-partial="modal-alterar-codigo"></div>
-  <div data-partial="modal-alterar-senha-admin"></div>
-  <div data-partial="modal-confirm"></div>
-  <div data-partial="toast"></div>
+  
+    <!-- SPRITE DE ÍCONES — inline para não depender de requisição externa nem tocar a CSP -->
+  <svg hidden aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/>
+      </symbol>
+      <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+      </symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 5v14M5 12h14"/>
+      </symbol>
+      <symbol id="i-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+      </symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>
+      </symbol>
+      <symbol id="i-restore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>
+      </symbol>
+      <symbol id="i-archive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/><path d="M10 13h4"/>
+      </symbol>
+      <symbol id="i-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>
+      </symbol>
+      <symbol id="i-store" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l1-5h16l1 5"/><path d="M4 9v10a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9"/><path d="M9 20v-6h6v6"/>
+      </symbol>
+      <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.2 3-5.4 6.5-5.4s6.5 2.2 6.5 5.4"/>
+        <path d="M16 4.3a3.2 3.2 0 0 1 0 6.2"/><path d="M20.5 20c0-2.6-1.9-4.6-4.6-5.3"/>
+      </symbol>
+      <symbol id="i-package" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 8l-9-5-9 5 9 5 9-5Z"/><path d="M3 8v9l9 5 9-5V8"/><path d="M12 13v9"/>
+      </symbol>
+      <symbol id="i-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="9" rx="1.2"/><rect x="14" y="3" width="7" height="5" rx="1.2"/>
+        <rect x="14" y="12" width="7" height="9" rx="1.2"/><rect x="3" y="16" width="7" height="5" rx="1.2"/>
+      </symbol>
+      <symbol id="i-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="7.5" cy="15.5" r="4.2"/><path d="M10.8 12.2 20 3"/><path d="M16.2 6.8l3 3"/><path d="M13.8 9.2l2 2"/>
+      </symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2.5l8 3.6v5.4c0 5-3.5 8.6-8 10-4.5-1.4-8-5-8-10V6.1l8-3.6Z"/>
+      </symbol>
+      <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 6L9 17l-5-5"/>
+      </symbol>
+      <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 6L6 18"/><path d="M6 6l12 12"/>
+      </symbol>
+      <symbol id="i-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 18l-6-6 6-6"/>
+      </symbol>
+      <symbol id="i-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 18l6-6-6-6"/>
+      </symbol>
+      <symbol id="i-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/>
+        <path d="M12 9v4"/><path d="M12 17h.01"/>
+      </symbol>
+      <symbol id="i-receipt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 2h12v20l-3-2-3 2-3-2-3 2Z"/><path d="M9 7h6"/><path d="M9 11h6"/>
+      </symbol>
+      <symbol id="i-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2.5l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1Z"/>
+      </symbol>
+    </defs>
+  </svg>
+
+    <!-- NAVBAR -->
+  <nav id="app-nav" class="navbar bc-nav py-2 px-3 d-none">
+    <a class="navbar-brand bc-brand mb-0" href="#">Controle</a>
+
+    <div class="d-flex align-items-center gap-2 ms-auto flex-wrap">
+      <div id="nav-user" class="nav-user-badge d-none"></div>
+
+      <ul class="nav bc-tabs" id="main-tabs" style="flex-wrap:wrap;">
+        <li class="nav-item d-none" id="nav-item-shop">
+          <a class="nav-link" href="#" data-action="tab" data-tab="shop" id="tab-shop">Loja</a>
+        </li>
+        <li class="nav-item d-none" id="nav-item-alterar-codigo">
+          <a class="nav-link" href="#" id="tab-alterar-codigo" data-action="alterar-codigo">Alterar código</a>
+        </li>
+        <li class="nav-item d-none" id="nav-item-alterar-senha-admin">
+          <a class="nav-link" href="#" id="tab-alterar-senha-admin" data-action="alterar-senha-admin">Senha admin</a>
+        </li>
+        <li class="nav-item d-none" id="nav-item-admin">
+          <a class="nav-link" href="#" data-action="tab" data-tab="admin" id="tab-admin">Controle</a>
+        </li>
+        <li class="nav-item d-none" id="nav-item-produtos">
+          <a class="nav-link" href="#" data-action="tab" data-tab="produtos" id="tab-produtos">Produtos</a>
+        </li>
+        <li class="nav-item d-none" id="nav-item-usuarios">
+          <a class="nav-link" href="#" data-action="tab" data-tab="usuarios" id="tab-usuarios">Usuários</a>
+        </li>
+      </ul>
+
+      <button class="btn btn-sm btn-bc btn-bc--ghost btn-bc--danger" data-action="logout">
+        <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-logout"/></svg>
+        Sair
+      </button>
+    </div>
+  </nav>
+
+    <!-- LOGIN -->
+  <div id="screen-login" class="screen active">
+    <div class="login-card">
+      <div class="login-logo">Controle</div>
+      <div class="login-title">Acesso interno</div>
+
+      <div id="login-steps" class="login-steps" style="display:none;">
+        <span class="login-step done">
+          <svg class="ic" width="12" height="12" aria-hidden="true"><use href="#i-check"/></svg>
+          Código
+        </span>
+        <span class="login-step-sep"></span>
+        <span class="login-step active">Verificação</span>
+      </div>
+
+      <div id="login-error" class="alert alert-danger d-none py-2"
+        style="font-size:.85rem;border-radius:var(--r-md);"></div>
+
+      <div class="mb-3">
+        <input type="text" id="login-code" class="form-control login-input" inputmode="numeric" pattern="[0-9]{6}"
+          maxlength="6" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="" />
+      </div>
+
+      <div id="login-admin-wrap" class="mb-3 d-none">
+        <input type="password" id="login-admin-password" class="form-control login-input"
+          autocomplete="off" placeholder="senha de administrador" />
+      </div>
+
+      <button class="btn-login" id="login-btn">
+        <span id="login-btn-text">Entrar</span>
+        <span id="login-loader" class="bc-loader d-none" style="width:16px;height:16px;"></span>
+      </button>
+
+      <div class="login-hint text-center" id="login-hint">Digite seu código de acesso</div>
+    </div>
+  </div>
+
+    <!-- SHOP -->
+  <div id="screen-shop" class="screen container-fluid py-3 px-3" style="max-width:1100px;">
+    <div class="screen-header">
+      <div class="screen-header-metric">
+        <span class="label">Meu total</span>
+        <span class="value" id="my-total">R$ 0,00</span>
+      </div>
+      <div class="screen-header-actions">
+        <div class="refresh-wrap">
+          <span class="refresh-updated-at" id="shop-updated-at"></span>
+          <button class="btn-refresh" id="btn-refresh-shop">
+            <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-refresh"/></svg>
+            Atualizar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="shop-search-wrap">
+      <svg class="ic" width="16" height="16" aria-hidden="true"><use href="#i-search"/></svg>
+      <input type="text" id="shop-search" class="bc-input" placeholder="Pesquisar bebida por nome..."
+        autocomplete="off" />
+    </div>
+
+    <div id="shop-fav-section" class="d-none">
+      <div class="section-label section-label--fav">
+        <svg class="ic" width="13" height="13" aria-hidden="true"><use href="#i-star"/></svg>
+        Favoritos
+      </div>
+      <div id="product-grid-fav" class="product-grid mb-5"></div>
+    </div>
+
+    <div class="section-label">Produtos disponíveis</div>
+    <div id="product-grid" class="product-grid">
+      <div class="empty-state" style="grid-column:1/-1;">
+        <div class="bc-loader mx-auto"></div>
+        <div class="mt-2">Carregando...</div>
+      </div>
+    </div>
+
+    <div class="section-label">Meus últimos itens</div>
+    <div class="history-table-wrap">
+      <table class="table table-hover history-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Produto</th>
+            <th>Valor</th>
+            <th>Data/hora</th>
+          </tr>
+        </thead>
+        <tbody id="history-body">
+          <tr>
+            <td colspan="4">
+              <div class="empty-state">
+                <div class="empty-icon"><svg class="ic" width="28" height="28" aria-hidden="true"><use href="#i-receipt"/></svg></div>
+                <div>Nenhuma compra ainda</div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div id="history-pagination" class="bc-pagination d-none"></div>
+    </div>
+  </div>
+
+    <!-- ADMIN — CONTROLE -->
+  <div id="screen-admin" class="screen container-fluid py-3 px-3" style="max-width:1100px;">
+    <div class="screen-header screen-header--admin">
+      <div>
+        <div class="screen-header-title">Painel de controle</div>
+        <div class="screen-header-sub">Clique em um usuário para ver detalhes dos consumos</div>
+      </div>
+      <div class="screen-header-actions">
+        <button class="btn-bc btn-bc--ghost btn-bc--danger" id="btn-zerar-todos">
+          <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-close"/></svg>
+          Zerar todos
+        </button>
+        <div class="refresh-wrap">
+          <span class="refresh-updated-at" id="admin-updated-at"></span>
+          <button class="btn-refresh" id="btn-refresh-admin">
+            <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-refresh"/></svg>
+            Atualizar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-search-wrap">
+      <svg class="ic" width="16" height="16" aria-hidden="true"><use href="#i-search"/></svg>
+      <input type="text" id="admin-search" class="bc-input" placeholder="Pesquisar usuário por nome ou código..."
+        autocomplete="off" />
+    </div>
+
+    <div class="admin-table-wrap">
+      <div id="admin-summary-bar" class="d-none"></div>
+      <table class="table admin-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Usuário</th>
+            <th>Itens</th>
+            <th>Total gasto</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="admin-body">
+          <tr>
+            <td colspan="5">
+              <div class="empty-state">
+                <div class="bc-loader mx-auto"></div>
+                <div class="mt-2">Carregando...</div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+    <!-- ADMIN — PRODUTOS -->
+  <div id="screen-produtos" class="screen container-fluid py-3 px-3" style="max-width:1100px;">
+    <div class="screen-header screen-header--admin">
+      <div>
+        <div class="screen-header-title">Gerenciar produtos</div>
+        <div class="screen-header-sub">Adicione, edite ou desative produtos do cardápio</div>
+      </div>
+      <div class="screen-header-actions">
+        <button class="btn-new" id="btn-new-produto">
+          <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-plus"/></svg>
+          Novo produto
+        </button>
+      </div>
+    </div>
+
+    <div class="admin-search-wrap">
+      <svg class="ic" width="16" height="16" aria-hidden="true"><use href="#i-search"/></svg>
+      <input type="text" id="produtos-search" class="bc-input" placeholder="Pesquisar produto por nome..."
+        autocomplete="off" />
+    </div>
+
+    <div class="admin-table-wrap">
+      <table class="table admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Preço</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="produtos-body">
+          <tr>
+            <td colspan="5">
+              <div class="empty-state">
+                <div class="bc-loader mx-auto"></div>
+                <div class="mt-2">Carregando...</div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+    <!-- ADMIN — USUÁRIOS -->
+  <div id="screen-usuarios" class="screen container-fluid py-3 px-3" style="max-width:1100px;">
+    <div class="screen-header screen-header--admin">
+      <div>
+        <div class="screen-header-title">Gerenciar usuários</div>
+        <div class="screen-header-sub">Cadastre, edite, inative ou exclua usuários do sistema</div>
+      </div>
+      <div class="screen-header-actions">
+        <button class="btn-new" id="btn-new-usuario">
+          <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-plus"/></svg>
+          Novo usuário
+        </button>
+      </div>
+    </div>
+
+    <div class="admin-search-wrap">
+      <svg class="ic" width="16" height="16" aria-hidden="true"><use href="#i-search"/></svg>
+      <input type="text" id="usuarios-search" class="bc-input" placeholder="Pesquisar usuário por nome..."
+        autocomplete="off" />
+    </div>
+
+    <div class="admin-table-wrap">
+      <table class="table admin-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nome</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="usuarios-body">
+          <tr>
+            <td colspan="4">
+              <div class="empty-state">
+                <div class="bc-loader mx-auto"></div>
+                <div class="mt-2">Carregando...</div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+    <!-- MODAL COMPRA -->
+  <div class="modal fade" id="buyModal" tabindex="-1" aria-labelledby="buy-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:380px;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="modal-title" id="buy-modal-title">Confirmar compra</span>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center py-3">
+          <div class="modal-eyebrow">Item selecionado</div>
+          <div class="confirm-product-name" id="modal-name">—</div>
+          <div class="confirm-product-price" id="modal-price">R$ 0,00</div>
+
+          <div class="qty-label" id="buy-qty-label">Quantidade</div>
+          <div class="qty-stepper">
+            <button type="button" class="qty-btn" id="btn-qty-minus" aria-label="Diminuir quantidade">−</button>
+            <input type="text" id="buy-qty" class="bc-input qty-input" inputmode="numeric"
+                   value="1" maxlength="2" autocomplete="off" aria-labelledby="buy-qty-label">
+            <button type="button" class="qty-btn" id="btn-qty-plus" aria-label="Aumentar quantidade">+</button>
+          </div>
+          <div class="qty-subtotal" id="buy-subtotal">R$ 0,00</div>
+
+          <div class="confirm-note">Isso será lançado na sua conta.</div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel-modal" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn-confirm ms-2" id="btn-confirm-buy">
+            <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-check"/></svg>
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- MODAL ZERAR -->
+  <div class="modal fade" id="zerarModal" tabindex="-1" aria-labelledby="zerar-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:360px;">
+      <div class="modal-content">
+        <div class="modal-header modal-header--danger">
+          <span class="modal-title" id="zerar-title">Zerar saldo</span>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center py-3">
+          <div id="zerar-prompt" class="modal-eyebrow">Confirma zerar o saldo atual de</div>
+          <div style="font-size:var(--fs-xl);font-weight:700;margin:.5rem 0;" id="zerar-nome">—</div>
+          <div id="zerar-description" class="confirm-note" style="color:var(--bc-red);">
+            Os consumos anteriores deixarão de contar no saldo atual.<br>Os dados serão preservados no banco.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel-modal" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn ms-2 btn-danger-modal" id="btn-confirm-zerar">
+            Zerar saldo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- MODAL DETALHES USUÁRIO -->
+  <div class="modal fade detail-modal" id="detailModal" tabindex="-1" aria-labelledby="detail-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header modal-header--admin">
+          <div>
+            <div class="modal-title" id="detail-title">—</div>
+            <div class="modal-subtitle" id="detail-subtitle"></div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="row g-2 mb-3">
+            <div class="col-12 col-sm-4">
+              <div class="detail-stat-box">
+                <div class="detail-stat-value detail-stat-value--admin" id="detail-total">R$ 0,00</div>
+                <div class="detail-stat-label">Total gasto</div>
+              </div>
+            </div>
+            <div class="col-6 col-sm-4">
+              <div class="detail-stat-box">
+                <div class="detail-stat-value detail-stat-value--user" id="detail-count">0</div>
+                <div class="detail-stat-label">Itens consumidos</div>
+              </div>
+            </div>
+            <div class="col-6 col-sm-4">
+              <div class="detail-stat-box">
+                <div class="detail-stat-value detail-stat-value--money" id="detail-avg">R$ 0,00</div>
+                <div class="detail-stat-label">Ticket médio</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="detail-fav-wrap" class="d-none mb-3 detail-fav">
+            <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-star"/></svg>
+            Favorito: <strong id="detail-fav"></strong>
+          </div>
+
+          <div class="detail-table-frame">
+            <div class="detail-table-scroll">
+              <table class="table detail-table mb-0">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Produto</th>
+                    <th>Valor</th>
+                    <th>Data/hora</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="detail-body">
+                  <tr>
+                    <td colspan="5">
+                      <div class="empty-state">
+                        <div class="bc-loader mx-auto"></div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="detail-pagination" class="bc-pagination bc-pagination--framed pag-amber d-none"></div>
+        </div>
+
+        <div class="modal-footer" style="justify-content:space-between;gap:.5rem;flex-wrap:wrap;">
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+            <button class="btn-zerar" id="detail-btn-zerar">
+              <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-close"/></svg>
+              Zerar saldo
+            </button>
+            <button class="btn-ver-ocultos" id="detail-btn-ocultos">
+              <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-archive"/></svg>
+              Itens ocultos<span class="ocultos-badge d-none" id="detail-ocultos-badge">0</span>
+            </button>
+          </div>
+          <button class="btn-cancel-modal" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- MODAL PRODUTO -->
+  <div class="modal fade" id="produtoModal" tabindex="-1" aria-labelledby="produto-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="modal-title" id="produto-modal-title">Novo produto</span>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="produto-id">
+          <div class="mb-3">
+            <label class="bc-label">Nome do produto</label>
+            <input type="text" id="produto-nome" class="bc-input" placeholder="Ex: Cerveja Long Neck" maxlength="100">
+          </div>
+          <div class="mb-3">
+            <label class="bc-label">Preço (R$)</label>
+            <input type="text" id="produto-preco" class="bc-input" inputmode="decimal" placeholder="0.00"
+              autocomplete="off">
+          </div>
+          <div>
+            <label class="bc-label">Status</label>
+            <select id="produto-ativo" class="bc-input">
+              <option value="true">Ativo — aparece na loja</option>
+              <option value="false">Inativo — oculto na loja</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel-modal" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn-save ms-2" id="btn-save-produto">
+            <span id="save-produto-text">Salvar</span>
+            <span id="save-produto-loader" class="bc-loader d-none"
+              style="width:14px;height:14px;border-top-color:#000;"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- MODAL USUÁRIO -->
+  <div class="modal fade" id="usuarioModal" tabindex="-1" aria-labelledby="usuario-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="modal-title" id="usuario-modal-title">Novo usuário</span>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="usuario-id">
+          <div class="mb-3">
+            <label class="bc-label">Nome completo</label>
+            <input type="text" id="usuario-nome" class="bc-input" placeholder="Ex: João Silva" maxlength="100">
+          </div>
+          <div class="mb-3">
+            <label class="bc-label">Código de acesso (6 dígitos)</label>
+            <input type="text" id="usuario-codigo" class="bc-input" inputmode="numeric" pattern="[0-9]{6}" maxlength="6"
+              placeholder="Ex: 123456" autocomplete="off" />
+            <div class="field-hint">Este código será usado para fazer login.</div>
+          </div>
+          <div>
+            <label class="bc-label">Perfil</label>
+            <select id="usuario-is-admin" class="bc-input">
+              <option value="false">Usuário — acessa a loja</option>
+              <option value="true">Administrador — acessa o painel de controle</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel-modal" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn-save ms-2" id="btn-save-usuario">
+            <span id="save-usuario-text">Salvar</span>
+            <span id="save-usuario-loader" class="bc-loader d-none"
+              style="width:14px;height:14px;border-top-color:#000;"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- MODAL REMOVER ITEM DE CONSUMO -->
+  <div class="modal fade" id="removeConsumoModal" tabindex="-1" aria-labelledby="remove-consumo-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:360px;">
+      <div class="modal-content">
+        <div class="modal-header modal-header--danger">
+          <span class="modal-title" id="remove-consumo-title">Ocultar item</span>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center py-3">
+          <div class="modal-eyebrow">Confirma ocultar este lançamento de</div>
+          <div style="font-size:var(--fs-lg);font-weight:700;margin:.4rem 0;" id="remove-consumo-nome">—</div>
+          <div style="font-family:var(--bc-mono);font-size:var(--fs-xl);color:var(--bc-red);font-weight:700;"
+            id="remove-consumo-preco">R$ 0,00</div>
+          <div class="confirm-note">
+            Este lançamento deixará de aparecer nas telas e relatórios.<br>Os dados serão preservados no banco.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel-modal" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn ms-2 btn-danger-modal" id="btn-confirm-remove-consumo">
+            Ocultar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- MODAL ITENS OCULTOS (arquivo / auditoria) -->
+  <div class="modal fade ocultos-modal" id="ocultosModal" tabindex="-1" aria-labelledby="ocultos-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header modal-header--archive">
+          <div>
+            <div class="modal-title" id="ocultos-title">Itens ocultos</div>
+            <div class="modal-subtitle">Consumos zerados e ocultados — preservados no banco, fora das telas e relatórios</div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="detail-table-frame">
+            <div class="detail-table-scroll" style="max-height:320px;">
+              <table class="table detail-table mb-0">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Produto</th>
+                    <th>Valor</th>
+                    <th>Auditoria</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="ocultos-body">
+                  <tr>
+                    <td colspan="5">
+                      <div class="empty-state">
+                        <div class="bc-loader mx-auto"></div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="ocultos-pagination" class="bc-pagination bc-pagination--framed pag-steel d-none"></div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-cancel-modal" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- MODAL RESTAURAR ITEM DE CONSUMO -->
+  <div class="modal fade" id="restoreConsumoModal" tabindex="-1" aria-labelledby="restore-consumo-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:360px;">
+      <div class="modal-content">
+        <div class="modal-header modal-header--money">
+          <span class="modal-title" id="restore-consumo-title">Restaurar item</span>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center py-3">
+          <div class="modal-eyebrow">Confirma restaurar este lançamento de</div>
+          <div style="font-size:var(--fs-lg);font-weight:700;margin:.4rem 0;" id="restore-consumo-nome">—</div>
+          <div style="font-family:var(--bc-mono);font-size:var(--fs-xl);color:var(--bc-green);font-weight:700;"
+            id="restore-consumo-preco">R$ 0,00</div>
+          <div class="confirm-note">O lançamento volta a aparecer nas telas e a contar nos relatórios.</div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel-modal" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn ms-2 btn-success-modal" id="btn-confirm-restore-consumo">
+            Restaurar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- MODAL ALTERAR CÓDIGO -->
+  <div class="modal fade" id="alterarCodigoModal" tabindex="-1" aria-labelledby="alterar-codigo-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <span class="modal-title" id="alterar-codigo-title">Alterar código de acesso</span>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <div id="alterar-codigo-error" class="alert alert-danger d-none py-2 mb-3"
+            style="font-size:.85rem;border-radius:var(--r-md);">
+          </div>
+
+          <div class="mb-3">
+            <label class="bc-label">Código atual</label>
+            <input type="text" id="codigo-atual" class="bc-input" inputmode="numeric" pattern="[0-9]{6}" maxlength="6"
+              placeholder="000000" autocomplete="current-password" />
+          </div>
+
+          <div class="mb-3">
+            <label class="bc-label">Novo código</label>
+            <input type="text" id="codigo-novo" class="bc-input" inputmode="numeric" pattern="[0-9]{6}" maxlength="6"
+              placeholder="000000" autocomplete="new-password" />
+          </div>
+
+          <div>
+            <label class="bc-label">Confirmar novo código</label>
+            <input type="text" id="codigo-confirmar" class="bc-input" inputmode="numeric" pattern="[0-9]{6}"
+              maxlength="6" placeholder="000000" autocomplete="new-password" />
+            <div class="field-hint">Use exatamente 6 dígitos numéricos.</div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-cancel-modal" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn-save ms-2" id="btn-save-alterar-codigo">
+            <span id="alterar-codigo-btn-text">Salvar</span>
+            <span id="alterar-codigo-loader" class="bc-loader d-none"
+              style="width:14px;height:14px;border-top-color:#000;"></span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+    <!-- MODAL ALTERAR SENHA ADMIN -->
+  <div class="modal fade" id="alterarSenhaAdminModal" tabindex="-1" aria-labelledby="alterar-senha-admin-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <span class="modal-title" id="alterar-senha-admin-title">Alterar senha de administrador</span>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <div id="alterar-senha-admin-error" class="alert alert-danger d-none py-2 mb-3"
+            style="font-size:.85rem;border-radius:var(--r-md);"></div>
+
+          <div class="mb-3">
+            <label class="bc-label">Senha atual</label>
+            <input type="password" id="senha-admin-atual" class="bc-input" autocomplete="current-password" />
+          </div>
+
+          <div class="mb-3">
+            <label class="bc-label">Nova senha</label>
+            <input type="password" id="senha-admin-nova" class="bc-input" autocomplete="new-password" />
+          </div>
+
+          <div>
+            <label class="bc-label">Confirmar nova senha</label>
+            <input type="password" id="senha-admin-confirmar" class="bc-input" autocomplete="new-password" />
+            <div class="field-hint">Mínimo 6 caracteres. Letras, números e símbolos.</div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-cancel-modal" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn-save ms-2" id="btn-save-alterar-senha-admin">
+            <span id="alterar-senha-admin-btn-text">Salvar</span>
+            <span id="alterar-senha-admin-loader" class="bc-loader d-none"
+              style="width:14px;height:14px;border-top-color:#000;"></span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+    <!-- CONFIRM MODAL (shared reusable) -->
+  <div class="modal fade" id="confirmModal" tabindex="-1"
+       aria-labelledby="confirm-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:360px;">
+      <div class="modal-content bc-modal">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirm-title">Confirmar</h5>
+        </div>
+        <div class="modal-body">
+          <p id="confirm-message" class="mb-0"></p>
+        </div>
+        <div class="modal-footer" style="border:none;padding-top:0;">
+          <button type="button" class="btn btn-sm btn-cancel-modal"
+            data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn ms-2 btn-danger-modal"
+            id="btn-confirm-action">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- TOAST -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:11000;">
+    <div id="bc-toast" class="toast bc-toast align-items-center border-0" role="alert">
+      <div class="d-flex">
+        <div class="toast-body" id="toast-body"></div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
 
   <script src="/lib/bootstrap.bundle.min.js"></script>
   <script type="module" src="js/boot.js"></script>

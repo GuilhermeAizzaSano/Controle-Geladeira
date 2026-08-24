@@ -1,16 +1,8 @@
 // ── BOOT ─────────────────────────────────────────────────────
-// Ponto de entrada carregado pelo index.html. Monta os parciais de HTML
-// antes de importar e iniciar app.js — nessa ordem, porque app.js faz
-// document.getElementById() para vários elementos que só existem depois
-// que os parciais são injetados.
+// Ponto de entrada carregado pelo index.html.
+// O HTML já é carregado integralmente no DOM inicial (sem FOUC).
+// Inicializa o ciclo de vida da aplicação de forma imediata e síncrona.
 
-import { mountPartials, renderMountError } from './partials.js';
+import { initApp } from './app.js';
 
-try {
-  await mountPartials();
-  const { initApp } = await import('./app.js');
-  initApp();
-} catch (err) {
-  console.error('[boot] Falha ao montar a interface:', err);
-  renderMountError(err);
-}
+initApp();
