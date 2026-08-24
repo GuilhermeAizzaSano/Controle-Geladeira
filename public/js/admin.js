@@ -436,7 +436,7 @@ registerRegion('detail-body', {
         </td>
         <td data-label="">
           <button class="btn-remove"
-                  data-action="remove-consumo"
+                  data-action="estornar-consumo"
                   data-id="${item.id}"
                   data-produto="${item.produto}"
                   data-preco="${Number(item.preco)}">
@@ -483,7 +483,7 @@ export async function loadDetailPage(pageNum = null) {
 registerPaginationCallback('loadDetailPage', loadDetailPage);
 
 export function onDetailBodyClick(e) {
-  const btn = e.target.closest('[data-action="remove-consumo"]');
+  const btn = e.target.closest('[data-action="estornar-consumo"], [data-action="remove-consumo"]');
   if (!btn) return;
 
   removeConsumoItem(
@@ -589,7 +589,7 @@ export async function confirmRemoveConsumo() {
   try {
     await apiCall('POST', `/admin/consumo/${state.removeConsumoId}/ocultar`);
     state.removeConsumoModal.hide();
-    showToast('Item ocultado com sucesso!', 'success');
+    showToast('Item estornado com sucesso!', 'success');
     state.removeConsumoId    = null;
 
     await loadDetailPage();
@@ -611,7 +611,7 @@ export async function openOcultosModal() {
   if (!state.detailUserId) return;
 
   state.pagState.ocultos = { page: 1, limit: 20, total: 0, totalPages: 1 };
-  document.getElementById('ocultos-title').textContent = `Itens ocultos — ${state.detailUserNome || ''}`;
+  document.getElementById('ocultos-title').textContent = `Histórico e estornos — ${state.detailUserNome || ''}`;
 
   state.ocultosModal.show();
   await loadOcultosPage();
@@ -665,7 +665,7 @@ registerRegion('ocultos-body', {
               data-id="${item.id}"
               data-produto="${item.produto}"
               data-preco="${Number(item.preco)}">
-        ${raw(icon('restore'))} Restaurar
+        ${raw(icon('restore'))} Voltar ao saldo
       </button>`;
     return html`
       <tr id="oculto-row-${item.id}">
@@ -748,7 +748,7 @@ export async function confirmRestoreConsumo() {
   try {
     await apiCall('POST', `/admin/consumo/${state.restoreConsumoId}/restaurar`);
     state.restoreConsumoModal.hide();
-    showToast('Item restaurado com sucesso!', 'success');
+    showToast('Item retornado ao saldo com sucesso!', 'success');
     state.restoreConsumoId    = null;
 
     await loadOcultosPage();
@@ -764,3 +764,8 @@ export async function confirmRestoreConsumo() {
     setBtnLoading(btn, false);
   }
 }
+
+export const confirmEstornarConsumo = confirmRemoveConsumo;
+export const confirmReativarConsumo = confirmRestoreConsumo;
+export const openEstornarConsumoModal = removeConsumoItem;
+export const openReativarConsumoModal = restoreConsumoItem;

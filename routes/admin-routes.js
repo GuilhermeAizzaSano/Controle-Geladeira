@@ -456,11 +456,38 @@ function createAdminRouter(deps) {
     }
   }
 
+  router.post('/consumo/:id/estornar', handleOcultar);
   router.post('/consumo/:id/ocultar', handleOcultar);
 
   // Restaura (des-oculta) um consumo: remove a marcação de `consumos_ocultos`.
   // O dado em `consumo` nunca foi apagado, então volta a aparecer nas telas.
-  router.post('/consumo/:id/restaurar', async (req, res) => {
+  router.post('/consumo/:id/reativar', async (req, res) => {
+      return handleReativar(req, res);
+    });
+    async function handleReativar(req, res) {
+      const consumoId = parsePositiveInt(req.params.id);
+      if (!consumoId) return res.status(400).json({ error: 'Registro inválido.' });
+      try {
+        await ensureConsumosOcultosTable();
+        await pool.query('UPDATE consumo SET oculto = FALSE WHERE id = $1', [consumoId]);
+        await pool.query('DELETE FROM consumos_ocultos WHERE id_consumo = $1', [consumoId]);
+        const consumoResult = await pool.query('SELECT id_usuario, data_hora FROM consumo WHERE id = $1', [consumoId]);
+        if (consumoResult.rows.length) {
+          const { id_usuario, data_hora } = consumoResult.rows[0];
+          const resetResult = await pool.query({ ...Q.LAST_RESET, values: [id_usuario] });
+          const lastReset = resetResult.rows[0]?.last_reset;
+          if (lastReset && new Date(data_hora) <= new Date(lastReset)) {
+            await pool.query('UPDATE consumo SET data_hora = NOW() WHERE id = $1', [consumoId]);
+          }
+        }
+        await invalidateAndRefreshRelatorio();
+        res.json({ success: true });
+      } catch (err) {
+        logError('/admin/consumo restaurar', err, req);
+        res.status(500).json({ error: 'Erro ao restaurar item.' });
+      }
+    }
+    router.post('/consumo/:id/restaurar', async (req, res) => {
       const consumoId = parsePositiveInt(req.params.id);
       if (!consumoId) return res.status(400).json({ error: 'Registro inválido.' });
 

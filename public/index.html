@@ -506,7 +506,7 @@
             </button>
             <button class="btn-ver-ocultos" id="detail-btn-ocultos">
               <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-archive"/></svg>
-              Itens ocultos<span class="ocultos-badge d-none" id="detail-ocultos-badge">0</span>
+              Histórico / Estornos<span class="ocultos-badge d-none" id="detail-ocultos-badge">0</span>
             </button>
           </div>
           <button class="btn-cancel-modal" data-bs-dismiss="modal">Fechar</button>
@@ -594,41 +594,41 @@
     </div>
   </div>
 
-    <!-- MODAL REMOVER ITEM DE CONSUMO -->
+    <!-- MODAL ESTORNAR ITEM DE CONSUMO -->
   <div class="modal fade" id="removeConsumoModal" tabindex="-1" aria-labelledby="remove-consumo-title" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width:360px;">
       <div class="modal-content">
         <div class="modal-header modal-header--danger">
-          <span class="modal-title" id="remove-consumo-title">Ocultar item</span>
+          <span class="modal-title" id="remove-consumo-title">Estornar consumo</span>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body text-center py-3">
-          <div class="modal-eyebrow">Confirma ocultar este lançamento de</div>
+          <div class="modal-eyebrow">Confirma estornar este lançamento de</div>
           <div style="font-size:var(--fs-lg);font-weight:700;margin:.4rem 0;" id="remove-consumo-nome">—</div>
           <div style="font-family:var(--bc-mono);font-size:var(--fs-xl);color:var(--bc-red);font-weight:700;"
             id="remove-consumo-preco">R$ 0,00</div>
           <div class="confirm-note">
-            Este lançamento deixará de aparecer nas telas e relatórios.<br>Os dados serão preservados no banco.
+            O valor será subtraído do saldo devedor atual do usuário.<br>O registro ficará salvo no histórico de estornos.
           </div>
         </div>
         <div class="modal-footer">
           <button class="btn-cancel-modal" data-bs-dismiss="modal">Cancelar</button>
           <button class="btn ms-2 btn-danger-modal" id="btn-confirm-remove-consumo">
-            Ocultar
+            Estornar consumo
           </button>
         </div>
       </div>
     </div>
   </div>
 
-    <!-- MODAL ITENS OCULTOS (arquivo / auditoria) -->
+  <!-- MODAL ITENS OCULTOS (arquivo / auditoria) -->
   <div class="modal fade ocultos-modal" id="ocultosModal" tabindex="-1" aria-labelledby="ocultos-title" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
         <div class="modal-header modal-header--archive">
           <div>
-            <div class="modal-title" id="ocultos-title">Itens ocultos</div>
-            <div class="modal-subtitle">Consumos zerados e ocultados — preservados no banco, fora das telas e relatórios</div>
+            <div class="modal-title" id="ocultos-title">Histórico de compras e estornos</div>
+            <div class="modal-subtitle">Compras já quitadas (saldo zerado) ou estornadas anteriormente</div>
           </div>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
@@ -669,32 +669,32 @@
     </div>
   </div>
 
-    <!-- MODAL RESTAURAR ITEM DE CONSUMO -->
+    <!-- MODAL REATIVAR ITEM DE CONSUMO -->
   <div class="modal fade" id="restoreConsumoModal" tabindex="-1" aria-labelledby="restore-consumo-title" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width:360px;">
       <div class="modal-content">
         <div class="modal-header modal-header--money">
-          <span class="modal-title" id="restore-consumo-title">Restaurar item</span>
+          <span class="modal-title" id="restore-consumo-title">Reativar cobrança</span>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body text-center py-3">
-          <div class="modal-eyebrow">Confirma restaurar este lançamento de</div>
+          <div class="modal-eyebrow">Confirma reativar a cobrança de</div>
           <div style="font-size:var(--fs-lg);font-weight:700;margin:.4rem 0;" id="restore-consumo-nome">—</div>
           <div style="font-family:var(--bc-mono);font-size:var(--fs-xl);color:var(--bc-green);font-weight:700;"
             id="restore-consumo-preco">R$ 0,00</div>
-          <div class="confirm-note">O lançamento volta a aparecer nas telas e a contar nos relatórios.</div>
+          <div class="confirm-note">O lançamento voltará a contar no saldo devedor atual do usuário.</div>
         </div>
         <div class="modal-footer">
           <button class="btn-cancel-modal" data-bs-dismiss="modal">Cancelar</button>
           <button class="btn ms-2 btn-success-modal" id="btn-confirm-restore-consumo">
-            Restaurar
+            Voltar ao saldo
           </button>
         </div>
       </div>
     </div>
   </div>
 
-    <!-- MODAL ALTERAR CÓDIGO -->
+  <!-- MODAL ALTERAR CÓDIGO -->
   <div class="modal fade" id="alterarCodigoModal" tabindex="-1" aria-labelledby="alterar-codigo-title" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
       <div class="modal-content">
