@@ -498,6 +498,22 @@ export async function loadDetailPage(pageNum = null) {
     const offset = (page - 1) * limit;
     setRegion('detail-body', { status: 'data', data, ctx: { offset } });
 
+    const resumoWrap = document.getElementById('detail-resumo-wrap');
+    const resumoContent = document.getElementById('detail-resumo-content');
+    if (resumoWrap && resumoContent && data) {
+      if (data.length > 0) {
+        const counts = {};
+        data.forEach(i => {
+          counts[i.produto] = (counts[i.produto] || 0) + 1;
+        });
+        const summaryText = Object.entries(counts).map(([nome, qtd]) => `${qtd}x ${nome}`).join(', ');
+        resumoContent.textContent = summaryText;
+        resumoWrap.classList.remove('d-none');
+      } else {
+        resumoWrap.classList.add('d-none');
+      }
+    }
+
     renderPagination('detail-pagination', state.pagState.detail, 'loadDetailPage');
   } catch (err) {
     setRegion('detail-body', { status: 'error', error: err });
