@@ -372,3 +372,13 @@ export async function confirmBuy() {
     setBtnLoading(btn, false);
   }
 }
+
+
+document.getElementById('btn-scroll-history')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  const section = document.getElementById('history-section');
+  if (section) {
+    section.scrollIntoView({ behavior: 'smooth' });
+  }
+});
+

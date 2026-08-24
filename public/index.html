@@ -167,6 +167,7 @@
         <span class="label">Meu total</span>
         <span class="value" id="my-total">R$ 0,00</span>
       </div>
+      <a href="#history-section" id="btn-scroll-history" class="btn-scroll-history">Ver últimas compras ↓</a>
       <div class="screen-header-actions">
         <div class="refresh-wrap">
           <span class="refresh-updated-at" id="shop-updated-at"></span>
@@ -200,7 +201,7 @@
       </div>
     </div>
 
-    <div class="section-label">Meus últimos itens</div>
+    <div class="section-label" id="history-section">Meus últimos itens</div>
     <div class="history-table-wrap">
       <table class="table table-hover history-table">
         <thead>
@@ -468,6 +469,11 @@
           <div id="detail-fav-wrap" class="d-none mb-3 detail-fav">
             <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-star"/></svg>
             Favorito: <strong id="detail-fav"></strong>
+          </div>
+          
+          <div id="detail-resumo-wrap" class="d-none mb-3 detail-resumo-agrupado">
+             <div class="resumo-title">Resumo de itens:</div>
+             <div id="detail-resumo-content" class="resumo-content"></div>
           </div>
 
           <div class="detail-table-frame">

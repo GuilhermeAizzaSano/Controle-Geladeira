@@ -1768,3 +1768,85 @@ select:focus-visible, [tabindex]:focus-visible,
 .confirm-modal--danger  #confirm-title { color: var(--ctx-danger); }
 .confirm-modal--warning #confirm-title { color: var(--ctx-admin); }
 .confirm-modal--success #confirm-title { color: var(--ctx-money); }
+
+
+/* --- IMPECCABLE: Operate Mode Adjustments --- */
+.kpi-bar {
+  display: flex;
+  gap: 1.5rem;
+  background: var(--bc-surface);
+  border: 1px solid var(--bc-border);
+  border-radius: var(--r-md);
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.kpi-item {
+  display: flex;
+  flex-direction: column;
+}
+.kpi-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--bc-muted);
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+.kpi-value {
+  font-family: var(--bc-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--bc-text);
+  line-height: 1.2;
+}
+
+.text-alert {
+  color: #fbbf24 !important; /* amber-400 */
+  font-weight: 700 !important;
+}
+
+.btn-scroll-history {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bc-muted);
+  text-decoration: none;
+  margin-left: 1.5rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.03);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+}
+.btn-scroll-history:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--bc-text);
+}
+@media (max-width: 500px) {
+  .btn-scroll-history {
+    margin-left: 0;
+    margin-top: 0.8rem;
+    align-self: flex-start;
+  }
+}
+
+.detail-resumo-agrupado {
+  background: rgba(255,255,255,0.02);
+  border-radius: var(--r-md);
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  color: var(--bc-text);
+  border: 1px solid var(--bc-border);
+}
+.resumo-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--bc-muted);
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+.resumo-content {
+  line-height: 1.5;
+}

@@ -174,6 +174,31 @@ function renderAdminSummary() {
 
 // ── Render ─────────────────────────────────────────────────────
 
+
+function renderKpis(users) {
+  let totalDinheiro = 0;
+  let totalDevedores = 0;
+  let totalItens = 0;
+
+  users.forEach(u => {
+    const gasto = Number(u.total_gasto) || 0;
+    const itens = Number(u.total_itens) || 0;
+    if (gasto > 0) {
+      totalDinheiro += gasto;
+      totalDevedores += 1;
+      totalItens += itens;
+    }
+  });
+
+  const kpiEl = document.getElementById('admin-kpis');
+  if (kpiEl) {
+    kpiEl.classList.remove('d-none');
+    document.getElementById('kpi-total-dinheiro').textContent = fmtBRL(totalDinheiro);
+    document.getElementById('kpi-total-devedores').textContent = totalDevedores.toString();
+    document.getElementById('kpi-total-itens').textContent = totalItens.toString();
+  }
+}
+
 registerRegion('admin-body', {
   target: '#admin-body',
 
@@ -226,7 +251,7 @@ registerRegion('admin-body', {
           </td>
           <td data-label="ITENS" style="font-family:var(--bc-mono);">${r.total_itens}</td>
           <td data-label="TOTAL">
-            <span class="total-badge ${Number(r.total_gasto) === 0 ? 'zero-total' : ''}">
+            <span class="total-badge ${Number(r.total_gasto) === 0 ? 'text-muted' : (Number(r.total_gasto) >= 50 ? 'text-alert' : '')}">
               ${fmtBRL(r.total_gasto)}
             </span>
           </td>
