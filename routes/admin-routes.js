@@ -511,7 +511,7 @@ function createAdminRouter(deps) {
     }
   });
 
-  router.post('/zerar/:id_usuario', async (req, res) => {
+  router.post('/zerar-individual/:id_usuario', async (req, res) => {
     const userId = parsePositiveInt(req.params.id_usuario);
     if (!userId) return res.status(400).json({ error: 'Usuário inválido.' });
 
@@ -534,7 +534,7 @@ function createAdminRouter(deps) {
     }
   });
 
-  router.post('/zerar-todos', async (req, res) => {
+  router.post('/zerar-em-massa', async (req, res) => {
     try {
       await ensureConsumosOcultosTable();
 
