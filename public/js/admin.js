@@ -440,8 +440,7 @@ registerRegion('detail-body', {
                   data-id="${item.id}"
                   data-produto="${item.produto}"
                   data-preco="${Number(item.preco)}">
-            ${raw(icon('trash'))} Remover
-          </button>
+            ${raw(icon('close'))} Estornar</button>
         </td>
       </tr>`)}`,
 });
@@ -483,7 +482,7 @@ export async function loadDetailPage(pageNum = null) {
 registerPaginationCallback('loadDetailPage', loadDetailPage);
 
 export function onDetailBodyClick(e) {
-  const btn = e.target.closest('[data-action="estornar-consumo"], [data-action="remove-consumo"]');
+  const btn = e.target.closest('[data-action="estornar-consumo"], [data-action="estornar-consumo"]');
   if (!btn) return;
 
   removeConsumoItem(
@@ -587,7 +586,7 @@ export async function confirmRemoveConsumo() {
   const btn = document.getElementById('btn-confirm-remove-consumo');
   setBtnLoading(btn, true, 'Aguarde...');
   try {
-    await apiCall('POST', `/admin/consumo/${state.removeConsumoId}/ocultar`);
+    await apiCall('POST', `/admin/consumo/${state.removeConsumoId}/estornar`);
     state.removeConsumoModal.hide();
     showToast('Item estornado com sucesso!', 'success');
     state.removeConsumoId    = null;
