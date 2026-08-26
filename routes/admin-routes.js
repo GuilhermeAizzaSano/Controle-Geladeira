@@ -102,21 +102,22 @@ function createAdminRouter(deps) {
     const resetResult = await pool.query({ ...Q.LAST_RESET, values: [userId] });
     const lastReset = resetResult.rows[0].last_reset;
 
-    const [dataResult, statsResult, favResult, ocultosResult] = await Promise.all([
+    const [dataResult, statsResult, resumoResult, ocultosResult] = await Promise.all([
       pool.query({ ...Q.DETALHES_DATA, values: [userId, lastReset, limit, offset] }),
       pool.query({ ...Q.DETALHES_STATS, values: [userId, lastReset] }),
-      pool.query({ ...Q.DETALHES_FAV, values: [userId, lastReset] }),
+      pool.query({ ...Q.DETALHES_RESUMO, values: [userId, lastReset] }),
       pool.query({ ...Q.OCULTOS_COUNT, values: [userId, lastReset] }),
     ]);
 
     const { total_itens: total, total_gasto } = statsResult.rows[0];
-    const favorito = favResult.rows[0] || null;
+    const resumo = resumoResult.rows;
+    const favorito = resumo.length > 0 ? { produto: resumo[0].produto, freq: resumo[0].qtd } : null;
     const total_ocultos = ocultosResult.rows[0].total_count;
 
     res.json({
       data: dataResult.rows,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
-      stats: { total_gasto, total_itens: total, favorito, total_ocultos },
+      stats: { total_gasto, total_itens: total, favorito, total_ocultos, resumo },
     });
   }));
 

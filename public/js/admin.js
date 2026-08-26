@@ -365,15 +365,17 @@ async function openDetailModal(id, nome, codigo, totalGasto, totalItens) {
   document.getElementById('detail-count').textContent = totalItens;
   document.getElementById('detail-avg').textContent =
     totalItens > 0 ? fmtBRL(totalGasto / totalItens) : fmtBRL(0);
-  // total_ocultos real só chega em loadDetailPage → updateDetailStats
+  // total_ocultos e resumo reais só chegam em loadDetailPage → updateDetailStats
   applyDetailHeaderView({ total_itens: totalItens, favorito: null, total_ocultos: 0 });
+  const resumoWrap = document.getElementById('detail-resumo-wrap');
+  if (resumoWrap) resumoWrap.classList.add('d-none');
 
   state.detailModal.show();
   await loadDetailPage();
 }
 
 function updateDetailStats(stats) {
-  const { total_gasto, total_itens } = stats;
+  const { total_gasto, total_itens, resumo } = stats;
 
   document.getElementById('detail-total').textContent = fmtBRL(total_gasto);
   document.getElementById('detail-count').textContent = total_itens;
@@ -381,6 +383,18 @@ function updateDetailStats(stats) {
     total_itens > 0 ? fmtBRL(total_gasto / total_itens) : fmtBRL(0);
 
   applyDetailHeaderView(stats);
+
+  const resumoWrap = document.getElementById('detail-resumo-wrap');
+  const resumoContent = document.getElementById('detail-resumo-content');
+  if (resumoWrap && resumoContent) {
+    if (resumo && resumo.length > 0) {
+      const summaryText = resumo.map(r => `${r.qtd}x ${r.produto}`).join(', ');
+      resumoContent.textContent = summaryText;
+      resumoWrap.classList.remove('d-none');
+    } else {
+      resumoWrap.classList.add('d-none');
+    }
+  }
 }
 
 registerRegion('detail-body', {
@@ -462,22 +476,6 @@ export async function loadDetailPage(pageNum = null) {
 
     const offset = (page - 1) * limit;
     setRegion('detail-body', { status: 'data', data, ctx: { offset } });
-
-    const resumoWrap = document.getElementById('detail-resumo-wrap');
-    const resumoContent = document.getElementById('detail-resumo-content');
-    if (resumoWrap && resumoContent && data) {
-      if (data.length > 0) {
-        const counts = {};
-        data.forEach(i => {
-          counts[i.produto] = (counts[i.produto] || 0) + 1;
-        });
-        const summaryText = Object.entries(counts).map(([nome, qtd]) => `${qtd}x ${nome}`).join(', ');
-        resumoContent.textContent = summaryText;
-        resumoWrap.classList.remove('d-none');
-      } else {
-        resumoWrap.classList.add('d-none');
-      }
-    }
 
     renderPagination('detail-pagination', state.pagState.detail, 'loadDetailPage');
   } catch (err) {
