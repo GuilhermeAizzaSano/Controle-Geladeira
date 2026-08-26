@@ -100,7 +100,7 @@
     <div class="d-flex align-items-center gap-2 ms-auto flex-wrap">
       <div id="nav-user" class="nav-user-badge d-none"></div>
 
-      <ul class="nav bc-tabs" id="main-tabs" style="flex-wrap:wrap;">
+      <ul class="nav bc-tabs flex-wrap" id="main-tabs">
         <li class="nav-item d-none" id="nav-item-shop">
           <a class="nav-link" href="#" data-action="tab" data-tab="shop" id="tab-shop">Loja</a>
         </li>
@@ -134,7 +134,7 @@
       <div class="login-logo">Controle</div>
       <div class="login-title">Acesso interno</div>
 
-      <div id="login-steps" class="login-steps" style="display:none;">
+      <div id="login-steps" class="login-steps d-none">
         <span class="login-step done">
           <svg class="ic" width="12" height="12" aria-hidden="true"><use href="#i-check"/></svg>
           Código
@@ -143,8 +143,7 @@
         <span class="login-step active">Verificação</span>
       </div>
 
-      <div id="login-error" class="alert alert-danger d-none py-2"
-        style="font-size:.85rem;border-radius:var(--r-md);"></div>
+      <div id="login-error" class="alert alert-danger form-alert-msg d-none py-2"></div>
 
       <div class="mb-3">
         <input type="text" id="login-code" class="form-control login-input" inputmode="numeric" pattern="[0-9]{6}"
@@ -158,7 +157,7 @@
 
       <button class="btn-login" id="login-btn">
         <span id="login-btn-text">Entrar</span>
-        <span id="login-loader" class="bc-loader d-none" style="width:16px;height:16px;"></span>
+        <span id="login-loader" class="bc-loader loader-md d-none"></span>
       </button>
 
       <div class="login-hint text-center" id="login-hint">Digite seu código de acesso</div>
@@ -166,7 +165,7 @@
   </div>
 
     <!-- SHOP -->
-  <div id="screen-shop" class="screen container-fluid py-3 px-3" style="max-width:1100px;">
+  <div id="screen-shop" class="screen container-fluid screen-container py-3 px-3">
     <div class="screen-header">
       <div class="screen-header-metric">
         <span class="label">Meu total</span>
@@ -200,10 +199,10 @@
 
     <div class="section-label">Produtos disponíveis</div>
     <div id="product-grid" class="product-grid">
-      <div class="empty-state" style="grid-column:1/-1;">
-        <div class="bc-loader mx-auto"></div>
-        <div class="mt-2">Carregando...</div>
-      </div>
+      <div class="skeleton-card"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-price"></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-price"></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-price"></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-price"></div></div>
     </div>
 
     <div class="section-label" id="history-section">Meus últimos itens</div>
@@ -233,7 +232,7 @@
   </div>
 
     <!-- ADMIN — CONTROLE -->
-  <div id="screen-admin" class="screen container-fluid py-3 px-3" style="max-width:1100px;">
+  <div id="screen-admin" class="screen container-fluid screen-container py-3 px-3">
     <div class="screen-header screen-header--admin">
       <div>
         <div class="screen-header-title">Painel de controle</div>
@@ -287,7 +286,7 @@
   </div>
 
     <!-- ADMIN — PRODUTOS -->
-  <div id="screen-produtos" class="screen container-fluid py-3 px-3" style="max-width:1100px;">
+  <div id="screen-produtos" class="screen container-fluid screen-container py-3 px-3">
     <div class="screen-header screen-header--admin">
       <div>
         <div class="screen-header-title">Gerenciar produtos</div>
@@ -333,7 +332,7 @@
   </div>
 
     <!-- ADMIN — USUÁRIOS -->
-  <div id="screen-usuarios" class="screen container-fluid py-3 px-3" style="max-width:1100px;">
+  <div id="screen-usuarios" class="screen container-fluid screen-container py-3 px-3">
     <div class="screen-header screen-header--admin">
       <div>
         <div class="screen-header-title">Gerenciar usuários</div>
@@ -379,7 +378,7 @@
 
     <!-- MODAL COMPRA -->
   <div class="modal fade" id="buyModal" tabindex="-1" aria-labelledby="buy-modal-title" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width:380px;">
+    <div class="modal-dialog modal-dialog-centered modal-sm-380">
       <div class="modal-content">
         <div class="modal-header">
           <span class="modal-title" id="buy-modal-title">Confirmar compra</span>
@@ -414,7 +413,7 @@
 
     <!-- MODAL ZERAR -->
   <div class="modal fade" id="zerarModal" tabindex="-1" aria-labelledby="zerar-title" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width:360px;">
+    <div class="modal-dialog modal-dialog-centered modal-sm-360">
       <div class="modal-content">
         <div class="modal-header modal-header--danger">
           <span class="modal-title" id="zerar-title">Zerar saldo</span>
@@ -422,8 +421,8 @@
         </div>
         <div class="modal-body text-center py-3">
           <div id="zerar-prompt" class="modal-eyebrow">Confirma zerar o saldo atual de</div>
-          <div style="font-size:var(--fs-xl);font-weight:700;margin:.5rem 0;" id="zerar-nome">—</div>
-          <div id="zerar-description" class="confirm-note" style="color:var(--bc-red);">
+          <div class="zerar-nome-text" id="zerar-nome">—</div>
+          <div id="zerar-description" class="confirm-note text-danger">
             Os consumos anteriores deixarão de contar no saldo atual.<br>Os dados serão preservados no banco.
           </div>
         </div>
@@ -509,8 +508,8 @@
           <div id="detail-pagination" class="bc-pagination bc-pagination--framed pag-amber d-none"></div>
         </div>
 
-        <div class="modal-footer" style="justify-content:space-between;gap:.5rem;flex-wrap:wrap;">
-          <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+        <div class="modal-footer detail-modal-footer-wrap">
+          <div class="detail-modal-footer-btns">
             <button class="btn-zerar" id="detail-btn-zerar">
               <svg class="ic" width="14" height="14" aria-hidden="true"><use href="#i-close"/></svg>
               Zerar saldo
@@ -528,7 +527,7 @@
 
     <!-- MODAL PRODUTO -->
   <div class="modal fade" id="produtoModal" tabindex="-1" aria-labelledby="produto-modal-title" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+    <div class="modal-dialog modal-dialog-centered modal-sm-420">
       <div class="modal-content">
         <div class="modal-header">
           <span class="modal-title" id="produto-modal-title">Novo produto</span>
@@ -557,8 +556,7 @@
           <button class="btn-cancel-modal" data-bs-dismiss="modal">Cancelar</button>
           <button class="btn-save ms-2" id="btn-save-produto">
             <span id="save-produto-text">Salvar</span>
-            <span id="save-produto-loader" class="bc-loader d-none"
-              style="width:14px;height:14px;border-top-color:#000;"></span>
+            <span id="save-produto-loader" class="bc-loader loader-sm d-none"></span>
           </button>
         </div>
       </div>
@@ -567,7 +565,7 @@
 
     <!-- MODAL USUÁRIO -->
   <div class="modal fade" id="usuarioModal" tabindex="-1" aria-labelledby="usuario-modal-title" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+    <div class="modal-dialog modal-dialog-centered modal-sm-420">
       <div class="modal-content">
         <div class="modal-header">
           <span class="modal-title" id="usuario-modal-title">Novo usuário</span>
@@ -597,8 +595,7 @@
           <button class="btn-cancel-modal" data-bs-dismiss="modal">Cancelar</button>
           <button class="btn-save ms-2" id="btn-save-usuario">
             <span id="save-usuario-text">Salvar</span>
-            <span id="save-usuario-loader" class="bc-loader d-none"
-              style="width:14px;height:14px;border-top-color:#000;"></span>
+            <span id="save-usuario-loader" class="bc-loader loader-sm d-none"></span>
           </button>
         </div>
       </div>
@@ -607,7 +604,7 @@
 
     <!-- MODAL ESTORNAR ITEM DE CONSUMO -->
   <div class="modal fade" id="removeConsumoModal" tabindex="-1" aria-labelledby="remove-consumo-title" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width:360px;">
+    <div class="modal-dialog modal-dialog-centered modal-sm-360">
       <div class="modal-content">
         <div class="modal-header modal-header--danger">
           <span class="modal-title" id="remove-consumo-title">Estornar consumo</span>
@@ -615,9 +612,8 @@
         </div>
         <div class="modal-body text-center py-3">
           <div class="modal-eyebrow">Confirma estornar este lançamento de</div>
-          <div style="font-size:var(--fs-lg);font-weight:700;margin:.4rem 0;" id="remove-consumo-nome">—</div>
-          <div style="font-family:var(--bc-mono);font-size:var(--fs-xl);color:var(--bc-red);font-weight:700;"
-            id="remove-consumo-preco">R$ 0,00</div>
+          <div class="remove-restore-nome" id="remove-consumo-nome">—</div>
+          <div class="text-danger-price" id="remove-consumo-preco">R$ 0,00</div>
           <div class="confirm-note">
             O valor será subtraído do saldo devedor atual do usuário.<br>O registro ficará salvo no histórico de estornos.
           </div>
@@ -646,7 +642,7 @@
 
         <div class="modal-body">
           <div class="detail-table-frame">
-            <div class="detail-table-scroll" style="max-height:320px;">
+            <div class="detail-table-scroll detail-table-scroll-320">
               <table class="table detail-table mb-0">
                 <thead>
                   <tr>
@@ -682,7 +678,7 @@
 
     <!-- MODAL REATIVAR ITEM DE CONSUMO -->
   <div class="modal fade" id="restoreConsumoModal" tabindex="-1" aria-labelledby="restore-consumo-title" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width:360px;">
+    <div class="modal-dialog modal-dialog-centered modal-sm-360">
       <div class="modal-content">
         <div class="modal-header modal-header--money">
           <span class="modal-title" id="restore-consumo-title">Reativar cobrança</span>
@@ -690,9 +686,8 @@
         </div>
         <div class="modal-body text-center py-3">
           <div class="modal-eyebrow">Confirma reativar a cobrança de</div>
-          <div style="font-size:var(--fs-lg);font-weight:700;margin:.4rem 0;" id="restore-consumo-nome">—</div>
-          <div style="font-family:var(--bc-mono);font-size:var(--fs-xl);color:var(--bc-green);font-weight:700;"
-            id="restore-consumo-preco">R$ 0,00</div>
+          <div class="remove-restore-nome" id="restore-consumo-nome">—</div>
+          <div class="text-success-price" id="restore-consumo-preco">R$ 0,00</div>
           <div class="confirm-note">O lançamento voltará a contar no saldo devedor atual do usuário.</div>
         </div>
         <div class="modal-footer">
@@ -707,7 +702,7 @@
 
   <!-- MODAL ALTERAR CÓDIGO -->
   <div class="modal fade" id="alterarCodigoModal" tabindex="-1" aria-labelledby="alterar-codigo-title" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
+    <div class="modal-dialog modal-dialog-centered modal-sm-400">
       <div class="modal-content">
 
         <div class="modal-header">
@@ -716,8 +711,7 @@
         </div>
 
         <div class="modal-body">
-          <div id="alterar-codigo-error" class="alert alert-danger d-none py-2 mb-3"
-            style="font-size:.85rem;border-radius:var(--r-md);">
+          <div id="alterar-codigo-error" class="alert alert-danger form-alert-msg d-none py-2 mb-3">
           </div>
 
           <div class="mb-3">
@@ -744,8 +738,7 @@
           <button class="btn-cancel-modal" data-bs-dismiss="modal">Cancelar</button>
           <button class="btn-save ms-2" id="btn-save-alterar-codigo">
             <span id="alterar-codigo-btn-text">Salvar</span>
-            <span id="alterar-codigo-loader" class="bc-loader d-none"
-              style="width:14px;height:14px;border-top-color:#000;"></span>
+            <span id="alterar-codigo-loader" class="bc-loader loader-sm d-none"></span>
           </button>
         </div>
 
@@ -755,7 +748,7 @@
 
     <!-- MODAL ALTERAR SENHA ADMIN -->
   <div class="modal fade" id="alterarSenhaAdminModal" tabindex="-1" aria-labelledby="alterar-senha-admin-title" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
+    <div class="modal-dialog modal-dialog-centered modal-sm-400">
       <div class="modal-content">
 
         <div class="modal-header">
@@ -764,8 +757,7 @@
         </div>
 
         <div class="modal-body">
-          <div id="alterar-senha-admin-error" class="alert alert-danger d-none py-2 mb-3"
-            style="font-size:.85rem;border-radius:var(--r-md);"></div>
+          <div id="alterar-senha-admin-error" class="alert alert-danger form-alert-msg d-none py-2 mb-3"></div>
 
           <div class="mb-3">
             <label class="bc-label">Senha atual</label>
@@ -788,8 +780,7 @@
           <button class="btn-cancel-modal" data-bs-dismiss="modal">Cancelar</button>
           <button class="btn-save ms-2" id="btn-save-alterar-senha-admin">
             <span id="alterar-senha-admin-btn-text">Salvar</span>
-            <span id="alterar-senha-admin-loader" class="bc-loader d-none"
-              style="width:14px;height:14px;border-top-color:#000;"></span>
+            <span id="alterar-senha-admin-loader" class="bc-loader loader-sm d-none"></span>
           </button>
         </div>
 
@@ -800,7 +791,7 @@
     <!-- CONFIRM MODAL (shared reusable) -->
   <div class="modal fade" id="confirmModal" tabindex="-1"
        aria-labelledby="confirm-title" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width:360px;">
+    <div class="modal-dialog modal-dialog-centered modal-sm-360">
       <div class="modal-content bc-modal">
         <div class="modal-header">
           <h5 class="modal-title" id="confirm-title">Confirmar</h5>
@@ -808,7 +799,7 @@
         <div class="modal-body">
           <p id="confirm-message" class="mb-0"></p>
         </div>
-        <div class="modal-footer" style="border:none;padding-top:0;">
+        <div class="modal-footer modal-footer-clean">
           <button type="button" class="btn btn-sm btn-cancel-modal"
             data-bs-dismiss="modal">Cancelar</button>
           <button type="button" class="btn ms-2 btn-danger-modal"
@@ -819,7 +810,7 @@
   </div>
 
     <!-- TOAST -->
-  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:11000;">
+  <div class="toast-container position-fixed bottom-0 end-0 p-3 toast-container-custom">
     <div id="bc-toast" class="toast bc-toast align-items-center border-0" role="alert">
       <div class="d-flex">
         <div class="toast-body" id="toast-body"></div>

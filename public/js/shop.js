@@ -50,13 +50,15 @@ registerRegion('product-grid', {
   target: '#product-grid',
 
   loading: () => html`
-    <div class="empty-state" style="grid-column:1/-1;">
-      <div class="bc-loader mx-auto"></div>
-      <div class="mt-2">Carregando...</div>
-    </div>`,
+    <div class="skeleton-card"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-price"></div></div>
+    <div class="skeleton-card"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-price"></div></div>
+    <div class="skeleton-card"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-price"></div></div>
+    <div class="skeleton-card"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-price"></div></div>
+    <div class="skeleton-card"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-price"></div></div>
+    <div class="skeleton-card"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-price"></div></div>`,
 
   error: () => html`
-    <div class="empty-state" style="grid-column:1/-1;color:var(--bc-red);">
+    <div class="empty-state grid-col-all text-danger">
       ✗ Erro ao carregar produtos
     </div>`,
 
@@ -65,12 +67,12 @@ registerRegion('product-grid', {
   // já estão favoritados (mensagem fixa, sempre a mesma).
   empty: (ctx) => ctx.reason === 'all-favorited'
     ? html`
-      <div class="empty-state" style="grid-column:1/-1;">
+      <div class="empty-state grid-col-all">
         <div class="empty-icon">${raw(icon('search', 28))}</div>
         <div>Nenhuma outra bebida encontrada</div>
       </div>`
     : html`
-      <div class="empty-state" style="grid-column:1/-1;">
+      <div class="empty-state grid-col-all">
         <div class="empty-icon">${raw(icon(ctx.isFiltering ? 'search' : 'package', 28))}</div>
         <div>${ctx.isFiltering ? 'Nenhuma bebida encontrada' : 'Nenhum produto disponível'}</div>
       </div>`,
