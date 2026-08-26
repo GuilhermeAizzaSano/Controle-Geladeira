@@ -258,8 +258,7 @@ export async function loadHistory(pageNum = null) {
       .map(
         (h, i) => html`
       <tr>
-        <td data-label="#"
-            style="color:var(--bc-muted);font-family:var(--bc-mono);">${String(offset + i + 1).padStart(2, '0')}</td>
+        <td data-label="#" class="cell-dim-mono">${String(offset + i + 1).padStart(2, '0')}</td>
         <td data-label="PRODUTO">${h.produto}</td>
         <td data-label="VALOR">
           <span class="tag-price-sm">${fmtBRL(h.preco)}</span>
@@ -275,9 +274,7 @@ export async function loadHistory(pageNum = null) {
   } catch {
     tbody.innerHTML = html`
       <tr>
-        <td colspan="4"
-            style="text-align:center;color:var(--bc-red);
-                   font-family:var(--bc-mono);font-size:.8rem;">
+        <td colspan="4" class="table-row-error">
           ✗ Erro
         </td>
       </tr>`.__raw;

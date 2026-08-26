@@ -1509,6 +1509,23 @@ select:focus-visible, [tabindex]:focus-visible,
 .text-success-price { font-family: var(--bc-mono); font-size: var(--fs-xl); color: var(--bc-green); font-weight: 700; font-variant-numeric: tabular-nums; }
 .form-alert-msg { font-size: .85rem; border-radius: var(--r-md); }
 .tabular-nums { font-variant-numeric: tabular-nums; }
+.text-mono { font-family: var(--bc-mono); font-variant-numeric: tabular-nums; }
+.text-muted-dim { color: var(--bc-muted); }
+.text-semibold { font-weight: 600; }
+.text-accent { color: var(--bc-accent); }
+.text-amber { color: var(--bc-amber); }
+.text-money { color: var(--ctx-money); }
+.text-dim { color: var(--bc-text-dim); }
+.text-default { color: var(--bc-text); }
+.table-header-sortable { cursor: pointer; user-select: none; }
+.table-header-sortable.is-active { color: var(--bc-amber); }
+.sort-indicator { margin-left: 4px; font-size: .6rem; opacity: .3; }
+.sort-indicator.is-active { opacity: 1; }
+.table-row-error { text-align: center; color: var(--bc-red); font-family: var(--bc-mono); font-size: .8rem; }
+.time-subtext { color: var(--bc-muted); font-family: var(--bc-mono); font-size: .82rem; font-variant-numeric: tabular-nums; }
+.cell-dim-mono { color: var(--bc-muted); font-family: var(--bc-mono); font-variant-numeric: tabular-nums; }
+.cell-value-mono { color: var(--bc-green); font-family: var(--bc-mono); font-weight: 600; font-variant-numeric: tabular-nums; }
+.cell-dim-value-mono { color: var(--bc-text-dim); font-family: var(--bc-mono); font-weight: 600; font-variant-numeric: tabular-nums; }
 
 
 /* ══════════════════════════════════════════════

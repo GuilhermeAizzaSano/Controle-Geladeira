@@ -86,14 +86,12 @@ function updateAdminThead() {
 
     const isActive = adminSortField === c.field;
     const arrow    = isActive ? (adminSortDir === 'asc' ? '▲' : '▼') : '⇅';
-    const color    = isActive ? 'color:var(--bc-amber);' : '';
 
     return html`
       <th role="columnheader" tabindex="0" data-sort="${c.field}"
-          style="cursor:pointer;user-select:none;${raw(color)}">
+          class="table-header-sortable${isActive ? ' is-active' : ''}">
         ${c.label}
-        <span style="margin-left:4px;font-size:.6rem;
-                     opacity:${isActive ? 1 : .3};">${arrow}</span>
+        <span class="sort-indicator${isActive ? ' is-active' : ''}">${arrow}</span>
       </th>`.__raw;
   }).join('');
 }
@@ -123,19 +121,19 @@ registerRegion('admin-summary-bar', {
   empty: () => raw(''),
   data: ({ count, totalItens, totalGeral, ticketMedio }) => html`
     <span>
-      <strong class="metric-value" style="color:var(--bc-text)">${count}</strong>
+      <strong class="metric-value text-default">${count}</strong>
       <span class="metric-label"> usuários</span>
     </span>
     <span>
-      <strong class="metric-value" style="color:var(--bc-accent)">${totalItens}</strong>
+      <strong class="metric-value text-accent">${totalItens}</strong>
       <span class="metric-label"> itens consumidos</span>
     </span>
     <span>
-      <strong class="metric-value" style="color:var(--bc-amber)">${fmtBRL(totalGeral)}</strong>
+      <strong class="metric-value text-amber">${fmtBRL(totalGeral)}</strong>
       <span class="metric-label"> total geral</span>
     </span>
     <span>
-      <strong class="metric-value" style="color:var(--bc-green)">${fmtBRL(ticketMedio)}</strong>
+      <strong class="metric-value text-money">${fmtBRL(ticketMedio)}</strong>
       <span class="metric-label"> ticket médio</span>
     </span>
   `,
@@ -189,9 +187,7 @@ registerRegion('admin-body', {
 
   error: () => html`
     <tr>
-      <td colspan="5"
-          style="text-align:center;color:var(--bc-red);
-                 font-family:var(--bc-mono);font-size:.8rem;">
+      <td colspan="5" class="table-row-error">
         ✗ Erro ao carregar
       </td>
     </tr>`,
@@ -214,8 +210,7 @@ registerRegion('admin-body', {
             data-codigo="${r.codigo_acesso}"
             data-total-gasto="${Number(r.total_gasto)}"
             data-total-itens="${Number(r.total_itens)}">
-          <td data-label="CÓDIGO"
-              style="font-family:var(--bc-mono);color:var(--bc-muted);">
+          <td data-label="CÓDIGO" class="cell-dim-mono">
             ${String(r.codigo_acesso).padStart(6, '0')}
           </td>
           <td data-label="USUÁRIO">
@@ -224,7 +219,7 @@ registerRegion('admin-body', {
               <span class="click-hint">→ ver consumos</span>
             </div>
           </td>
-          <td data-label="ITENS" style="font-family:var(--bc-mono);">${r.total_itens}</td>
+          <td data-label="ITENS" class="text-mono">${r.total_itens}</td>
           <td data-label="TOTAL">
             <span class="total-badge ${Number(r.total_gasto) === 0 ? 'text-muted' : (Number(r.total_gasto) >= 50 ? 'text-alert' : '')}">
               ${fmtBRL(r.total_gasto)}
@@ -402,9 +397,7 @@ registerRegion('detail-body', {
 
   error: () => html`
     <tr>
-      <td colspan="5"
-          style="text-align:center;color:var(--bc-red);
-                 font-family:var(--bc-mono);font-size:.8rem;">
+      <td colspan="5" class="table-row-error">
         ✗ Erro
       </td>
     </tr>`,
@@ -421,17 +414,14 @@ registerRegion('detail-body', {
 
   data: (items, { offset }) => html`${items.map((item, i) => html`
       <tr id="consumo-row-${item.id}">
-        <td data-label="#"
-            style="color:var(--bc-muted);font-family:var(--bc-mono);">
+        <td data-label="#" class="cell-dim-mono">
           ${String(offset + i + 1).padStart(2, '0')}
         </td>
         <td data-label="PRODUTO">${item.produto}</td>
-        <td data-label="VALOR"
-            style="color:var(--bc-green);font-family:var(--bc-mono);font-weight:600;">
+        <td data-label="VALOR" class="cell-value-mono">
           ${fmtBRL(item.preco)}
         </td>
-        <td data-label="DATA/HORA"
-            style="color:var(--bc-muted);font-family:var(--bc-mono);font-size:.82rem;">
+        <td data-label="DATA/HORA" class="time-subtext">
           ${fmtDate(item.data_hora)}
         </td>
         <td data-label="">
@@ -646,9 +636,7 @@ registerRegion('ocultos-body', {
 
   error: () => html`
     <tr>
-      <td colspan="5"
-          style="text-align:center;color:var(--bc-red);
-                 font-family:var(--bc-mono);font-size:.8rem;">
+      <td colspan="5" class="table-row-error">
         ✗ Erro
       </td>
     </tr>`,
@@ -684,13 +672,11 @@ registerRegion('ocultos-body', {
       </button>`;
     return html`
       <tr id="oculto-row-${item.id}">
-        <td data-label="#"
-            style="color:var(--bc-muted);font-family:var(--bc-mono);">
+        <td data-label="#" class="cell-dim-mono">
           ${String(offset + i + 1).padStart(2, '0')}
         </td>
         <td data-label="PRODUTO">${item.produto}</td>
-        <td data-label="VALOR"
-            style="color:var(--bc-text-dim);font-family:var(--bc-mono);font-weight:600;">
+        <td data-label="VALOR" class="cell-dim-value-mono">
           ${fmtBRL(item.preco)}
         </td>
         <td data-label="AUDITORIA">

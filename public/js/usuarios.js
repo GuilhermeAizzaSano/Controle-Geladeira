@@ -42,9 +42,7 @@ registerRegion('usuarios-body', {
 
   error: () => html`
     <tr>
-      <td colspan="4"
-          style="text-align:center;color:var(--bc-red);
-                 font-family:var(--bc-mono);font-size:.8rem;">
+      <td colspan="4" class="table-row-error">
         ✗ Erro ao carregar
       </td>
     </tr>`,
@@ -65,7 +63,7 @@ registerRegion('usuarios-body', {
       <td data-label="CÓDIGO">
         <span class="code-badge ${u.ativo ? '' : 'code-badge--muted'}">${String(u.codigo_acesso).padStart(6, '0')}</span>
       </td>
-      <td data-label="NOME" style="font-weight:600;">
+      <td data-label="NOME" class="text-semibold">
         ${u.nome}${raw(u.is_admin ? ' <span class="role-badge">Admin</span>' : '')}
         ${raw(!u.ativo ? ' <span class="inativo-inline-label">(Inativo)</span>' : '')}
       </td>

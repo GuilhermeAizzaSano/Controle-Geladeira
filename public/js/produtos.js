@@ -41,9 +41,7 @@ registerRegion('produtos-body', {
 
   error: () => html`
     <tr>
-      <td colspan="5"
-          style="text-align:center;color:var(--bc-red);
-                 font-family:var(--bc-mono);font-size:.8rem;">
+      <td colspan="5" class="table-row-error">
         ✗ Erro ao carregar
       </td>
     </tr>`,
@@ -61,15 +59,12 @@ registerRegion('produtos-body', {
   data: produtos => html`${produtos.map(
     p => html`
     <tr class="${p.ativo ? '' : 'row-inativo'}">
-      <td data-label="ID"
-          style="font-family:var(--bc-mono);color:var(--bc-muted);">${p.id}</td>
-      <td data-label="NOME"
-          style="font-weight:600;">
+      <td data-label="ID" class="cell-dim-mono">${p.id}</td>
+      <td data-label="NOME" class="text-semibold">
         ${p.nome}
         ${raw(!p.ativo ? ' <span class="inativo-inline-label">(Inativo)</span>' : '')}
       </td>
-      <td data-label="PREÇO"
-          style="font-family:var(--bc-mono);color:var(--bc-green);">${fmtBRL(p.preco)}</td>
+      <td data-label="PREÇO" class="cell-value-mono">${fmtBRL(p.preco)}</td>
       <td data-label="STATUS">
         <span class="status-badge ${p.ativo ? 'status-ativo' : 'status-inativo'}">
           ${p.ativo ? 'Ativo' : 'Inativo'}
