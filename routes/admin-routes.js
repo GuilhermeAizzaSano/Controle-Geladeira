@@ -1,4 +1,7 @@
+'use strict';
+
 const express = require('express');
+const { asyncHandler } = require('../lib/async-handler');
 
 function createAdminRouter(deps) {
   const {
@@ -6,21 +9,14 @@ function createAdminRouter(deps) {
     Q,
     requireAdmin,
     adminRateLimitMiddleware,
-    logError,
     tableHasColumn,
-    ensureUsuariosAtivoColumn,
-    ensureUsuariosAdminSenhaColumn,
-    ensureConsumosOcultosTable,
     invalidateAndRefreshRelatorio,
     getAdminRelatorioRows,
     zerarSaldoIndividual,
-    zerarSaldosEmMassa,
     zerarTodosElegiveis,
     withTransaction,
     requireCsrf,
     sessionStore,
-    cookieHelpers,
-    cookieSecure,
     parseBoolean,
     parseCodigoAcesso,
     parsePositiveInt,
@@ -41,7 +37,7 @@ function createAdminRouter(deps) {
 
   router.use(adminRateLimitMiddleware, requireAdmin);
 
-  router.put('/senha', async (req, res) => {
+  router.put('/senha', asyncHandler(async (req, res) => {
     const userId = req.session.userId;
     const { senha_atual, senha_nova } = req.body ?? {};
 
@@ -55,111 +51,86 @@ function createAdminRouter(deps) {
       return res.status(400).json({ error: 'Nova senha deve ter entre 6 e 100 caracteres.' });
     }
 
-    try {
-      await ensureUsuariosAdminSenhaColumn();
-      const result = await pool.query(
-        'SELECT admin_senha_hash FROM usuarios WHERE id = $1',
-        [userId]
-      );
+    const result = await pool.query(
+      'SELECT admin_senha_hash FROM usuarios WHERE id = $1',
+      [userId]
+    );
 
-      if (!result.rows.length) {
-        return res.status(404).json({ error: 'Usuário não encontrado.' });
-      }
-
-      const currentHash = result.rows[0].admin_senha_hash;
-
-      if (!verifyAdminPassword(senha_atual, currentHash)) {
-        return res.status(401).json({ error: 'Senha atual incorreta.' });
-      }
-
-      if (verifyAdminPassword(senha_nova, currentHash)) {
-        return res.status(400).json({ error: 'A nova senha deve ser diferente da atual.' });
-      }
-
-      await pool.query(
-        'UPDATE usuarios SET admin_senha_hash = $1 WHERE id = $2',
-        [hashAdminPassword(senha_nova), userId]
-      );
-
-      res.json({ success: true, message: 'Senha de administrador alterada com sucesso.' });
-    } catch (err) {
-      logError('/admin/senha', err, req);
-      res.status(500).json({ error: 'Erro ao alterar senha.' });
+    if (!result.rows.length) {
+      return res.status(404).json({ error: 'Usuário não encontrado.' });
     }
-  });
 
-  router.get('/relatorio', async (req, res) => {
+    const currentHash = result.rows[0].admin_senha_hash;
+
+    if (!verifyAdminPassword(senha_atual, currentHash)) {
+      return res.status(401).json({ error: 'Senha atual incorreta.' });
+    }
+
+    if (verifyAdminPassword(senha_nova, currentHash)) {
+      return res.status(400).json({ error: 'A nova senha deve ser diferente da atual.' });
+    }
+
+    await pool.query(
+      'UPDATE usuarios SET admin_senha_hash = $1 WHERE id = $2',
+      [hashAdminPassword(senha_nova), userId]
+    );
+
+    res.json({ success: true, message: 'Senha de administrador alterada com sucesso.' });
+  }));
+
+  router.get('/relatorio', asyncHandler(async (req, res) => {
     const now = Date.now();
 
     if (deps.relatorioCacheRef.value && now - deps.relatorioCacheRef.at < deps.relatorioCacheRef.ttl) {
       return res.json(deps.relatorioCacheRef.value);
     }
 
-    try {
-      await ensureConsumosOcultosTable();
+    const rows = await getAdminRelatorioRows();
 
-      const rows = await getAdminRelatorioRows();
+    deps.relatorioCacheRef.value = rows;
+    deps.relatorioCacheRef.at = Date.now();
 
-      deps.relatorioCacheRef.value = rows;
-      deps.relatorioCacheRef.at = Date.now();
+    res.json(rows);
+  }));
 
-      res.json(rows);
-    } catch (err) {
-      logError('/admin/relatorio', err, req);
-      res.status(500).json({ error: 'Erro ao gerar relatório.' });
-    }
-  });
-
-  router.get('/detalhes/:id_usuario', async (req, res) => {
+  router.get('/detalhes/:id_usuario', asyncHandler(async (req, res) => {
     const userId = parsePositiveInt(req.params.id_usuario);
     if (!userId) return res.status(400).json({ error: 'Usuário inválido.' });
 
     const { page, limit, offset } = parsePagination(req.query, 20, 100);
 
-    try {
-      await ensureConsumosOcultosTable();
+    const resetResult = await pool.query({ ...Q.LAST_RESET, values: [userId] });
+    const lastReset = resetResult.rows[0].last_reset;
 
-      const resetResult = await pool.query({ ...Q.LAST_RESET, values: [userId] });
-      const lastReset = resetResult.rows[0].last_reset;
+    const [dataResult, statsResult, favResult, ocultosResult] = await Promise.all([
+      pool.query({ ...Q.DETALHES_DATA, values: [userId, lastReset, limit, offset] }),
+      pool.query({ ...Q.DETALHES_STATS, values: [userId, lastReset] }),
+      pool.query({ ...Q.DETALHES_FAV, values: [userId, lastReset] }),
+      pool.query({ ...Q.OCULTOS_COUNT, values: [userId, lastReset] }),
+    ]);
 
-      const [dataResult, statsResult, favResult, ocultosResult] = await Promise.all([
-        pool.query({ ...Q.DETALHES_DATA, values: [userId, lastReset, limit, offset] }),
-        pool.query({ ...Q.DETALHES_STATS, values: [userId, lastReset] }),
-        pool.query({ ...Q.DETALHES_FAV, values: [userId, lastReset] }),
-        pool.query({ ...Q.OCULTOS_COUNT, values: [userId, lastReset] }),
-      ]);
+    const { total_itens: total, total_gasto } = statsResult.rows[0];
+    const favorito = favResult.rows[0] || null;
+    const total_ocultos = ocultosResult.rows[0].total_count;
 
-      const { total_itens: total, total_gasto } = statsResult.rows[0];
-      const favorito = favResult.rows[0] || null;
-      const total_ocultos = ocultosResult.rows[0].total_count;
+    res.json({
+      data: dataResult.rows,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+      stats: { total_gasto, total_itens: total, favorito, total_ocultos },
+    });
+  }));
 
-      res.json({
-        data: dataResult.rows,
-        pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
-        stats: { total_gasto, total_itens: total, favorito, total_ocultos },
-      });
-    } catch (err) {
-      logError('/admin/detalhes', err, req);
-      res.status(500).json({ error: 'Erro ao buscar detalhes.' });
-    }
-  });
+  router.get('/usuarios', asyncHandler(async (req, res) => {
+    const hasAtivo = await tableHasColumn('usuarios', 'ativo');
+    const query = hasAtivo
+      ? 'SELECT id, nome, codigo_acesso, ativo, is_admin FROM usuarios ORDER BY nome ASC'
+      : 'SELECT id, nome, codigo_acesso, TRUE AS ativo, FALSE AS is_admin FROM usuarios ORDER BY nome ASC';
 
-  router.get('/usuarios', async (req, res) => {
-    try {
-      const hasAtivo = await tableHasColumn('usuarios', 'ativo');
-      const query = hasAtivo
-        ? 'SELECT id, nome, codigo_acesso, ativo, is_admin FROM usuarios ORDER BY nome ASC'
-        : 'SELECT id, nome, codigo_acesso, TRUE AS ativo, FALSE AS is_admin FROM usuarios ORDER BY nome ASC';
+    const result = await pool.query(query);
+    res.json(result.rows);
+  }));
 
-      const result = await pool.query(query);
-      res.json(result.rows);
-    } catch (err) {
-      logError('/admin/usuarios GET', err, req);
-      res.status(500).json({ error: 'Erro ao buscar usuários.' });
-    }
-  });
-
-  router.post('/usuarios', async (req, res) => {
+  router.post('/usuarios', asyncHandler(async (req, res) => {
     const nome = req.body?.nome?.trim();
     const codigo_acesso = parseCodigoAcesso(req.body?.codigo_acesso);
 
@@ -169,16 +140,11 @@ function createAdminRouter(deps) {
     if (!codigo_acesso)
       return res.status(400).json({ error: 'Código de acesso deve ter exatamente 6 dígitos.' });
 
+    const isAdmin = parseBoolean(req.body?.is_admin, false);
+
+    let usuario;
     try {
-      const isAdmin = parseBoolean(req.body?.is_admin, false);
-
-      if (isAdmin) await ensureUsuariosAdminSenhaColumn();
-
-      // INSERT do usuário + (se admin) UPDATE do hash de senha andam juntos numa
-      // transação: se a segunda escrita falhar, o ROLLBACK desfaz a primeira — sem
-      // isso, um erro no meio do caminho deixaria um admin com senha nula, incapaz
-      // de logar (público-routes.js rejeita hash ausente com 403).
-      const usuario = await withTransaction(pool, async client => {
+      usuario = await withTransaction(pool, async client => {
         const result = await client.query(
           `INSERT INTO usuarios (nome, codigo_acesso, is_admin)
            VALUES ($1, $2, $3)
@@ -195,19 +161,18 @@ function createAdminRouter(deps) {
 
         return result.rows[0];
       });
-
-      await invalidateAndRefreshRelatorio();
-
-      res.json({ success: true, usuario });
     } catch (err) {
       if (err.code === '23505')
         return res.status(409).json({ error: 'Este código de acesso já está em uso.' });
-      logError('/admin/usuarios POST', err, req);
-      res.status(500).json({ error: 'Erro ao criar usuário.' });
+      throw err;
     }
-  });
 
-  router.put('/usuarios/:id', async (req, res) => {
+    await invalidateAndRefreshRelatorio();
+
+    res.json({ success: true, usuario });
+  }));
+
+  router.put('/usuarios/:id', asyncHandler(async (req, res) => {
     const userId = parsePositiveInt(req.params.id);
     if (!userId) return res.status(400).json({ error: 'Usuário inválido.' });
 
@@ -220,15 +185,11 @@ function createAdminRouter(deps) {
     if (!codigo_acesso)
       return res.status(400).json({ error: 'Código de acesso deve ter exatamente 6 dígitos.' });
 
+    const isAdmin = parseBoolean(req.body?.is_admin, false);
+
+    let usuario;
     try {
-      const isAdmin = parseBoolean(req.body?.is_admin, false);
-
-      if (isAdmin) await ensureUsuariosAdminSenhaColumn();
-
-      // UPDATE do usuário + (se admin) UPDATE do hash de senha andam juntos numa
-      // transação — mesmo motivo do POST acima: evitar um admin com senha nula se
-      // a segunda escrita falhar.
-      const usuario = await withTransaction(pool, async client => {
+      usuario = await withTransaction(pool, async client => {
         const result = await client.query(
           `UPDATE usuarios
            SET nome = $1, codigo_acesso = $2, is_admin = $3
@@ -248,25 +209,22 @@ function createAdminRouter(deps) {
 
         return result.rows[0];
       });
-
-      if (!usuario)
-        return res.status(404).json({ error: 'Usuário não encontrado.' });
-
-      // Sessões e cache são efeitos colaterais de outro domínio — rodam só depois
-      // do commit, nunca desfeitos/refeitos junto com um eventual rollback acima.
-      await sessionStore.destroyUserSessions(userId);
-      await invalidateAndRefreshRelatorio();
-
-      res.json({ success: true, usuario });
     } catch (err) {
       if (err.code === '23505')
         return res.status(409).json({ error: 'Este código de acesso já está em uso.' });
-      logError('/admin/usuarios PUT', err, req);
-      res.status(500).json({ error: 'Erro ao atualizar usuário.' });
+      throw err;
     }
-  });
 
-  router.delete('/usuarios/:id', async (req, res) => {
+    if (!usuario)
+      return res.status(404).json({ error: 'Usuário não encontrado.' });
+
+    await sessionStore.destroyUserSessions(userId);
+    await invalidateAndRefreshRelatorio();
+
+    res.json({ success: true, usuario });
+  }));
+
+  router.delete('/usuarios/:id', asyncHandler(async (req, res) => {
     const userId = parsePositiveInt(req.params.id);
     if (!userId) return res.status(400).json({ error: 'Usuário inválido.' });
 
@@ -274,57 +232,45 @@ function createAdminRouter(deps) {
       ? req.query.acao
       : 'inativar';
 
-    try {
-      if (acao === 'excluir') {
-        const result = await pool.query(
-          'DELETE FROM usuarios WHERE id = $1 RETURNING id',
-          [userId]
-        );
-        if (!result.rows.length)
-          return res.status(404).json({ error: 'Usuário não encontrado.' });
-
-        await sessionStore.destroyUserSessions(userId);
-
-        await invalidateAndRefreshRelatorio();
-
-        return res.json({ success: true });
-      }
-
-      await ensureUsuariosAtivoColumn();
+    if (acao === 'excluir') {
       const result = await pool.query(
-        'UPDATE usuarios SET ativo = $1 WHERE id = $2 RETURNING id',
-        [acao === 'ativar', userId]
+        'DELETE FROM usuarios WHERE id = $1 RETURNING id',
+        [userId]
       );
-
       if (!result.rows.length)
         return res.status(404).json({ error: 'Usuário não encontrado.' });
 
-      if (acao === 'inativar') {
-        await sessionStore.destroyUserSessions(userId);
-      }
-
+      await sessionStore.destroyUserSessions(userId);
       await invalidateAndRefreshRelatorio();
 
-      res.json({ success: true });
-    } catch (err) {
-      logError('/admin/usuarios DELETE', err, req);
-      res.status(500).json({ error: 'Erro ao remover usuário.' });
+      return res.json({ success: true });
     }
-  });
 
-  router.get('/produtos', async (req, res) => {
-    try {
-      const result = await pool.query(
-        'SELECT id, nome, preco, ativo FROM produtos ORDER BY ativo DESC, nome ASC'
-      );
-      res.json(result.rows);
-    } catch (err) {
-      logError('/admin/produtos', err, req);
-      res.status(500).json({ error: 'Erro ao buscar produtos.' });
+    const result = await pool.query(
+      'UPDATE usuarios SET ativo = $1 WHERE id = $2 RETURNING id',
+      [acao === 'ativar', userId]
+    );
+
+    if (!result.rows.length)
+      return res.status(404).json({ error: 'Usuário não encontrado.' });
+
+    if (acao === 'inativar') {
+      await sessionStore.destroyUserSessions(userId);
     }
-  });
 
-  router.post('/produtos', async (req, res) => {
+    await invalidateAndRefreshRelatorio();
+
+    res.json({ success: true });
+  }));
+
+  router.get('/produtos', asyncHandler(async (req, res) => {
+    const result = await pool.query(
+      'SELECT id, nome, preco, ativo FROM produtos ORDER BY ativo DESC, nome ASC'
+    );
+    res.json(result.rows);
+  }));
+
+  router.post('/produtos', asyncHandler(async (req, res) => {
     const nome = req.body?.nome?.trim();
     const preco = parseNonNegativeNumber(req.body?.preco);
     const ativo = parseBoolean(req.body?.ativo, true);
@@ -335,24 +281,19 @@ function createAdminRouter(deps) {
     if (preco === null)
       return res.status(400).json({ error: 'Informe um preço válido.' });
 
-    try {
-      const result = await pool.query(
-        `INSERT INTO produtos (nome, preco, ativo)
-         VALUES ($1, $2, $3)
-         RETURNING id, nome, preco, ativo`,
-        [nome, preco, ativo]
-      );
+    const result = await pool.query(
+      `INSERT INTO produtos (nome, preco, ativo)
+       VALUES ($1, $2, $3)
+       RETURNING id, nome, preco, ativo`,
+      [nome, preco, ativo]
+    );
 
-      await invalidateAndRefreshRelatorio();
+    await invalidateAndRefreshRelatorio();
 
-      res.json({ success: true, produto: result.rows[0] });
-    } catch (err) {
-      logError('/admin/produtos POST', err, req);
-      res.status(500).json({ error: 'Erro ao criar produto.' });
-    }
-  });
+    res.json({ success: true, produto: result.rows[0] });
+  }));
 
-  router.put('/produtos/:id', async (req, res) => {
+  router.put('/produtos/:id', asyncHandler(async (req, res) => {
     const productId = parsePositiveInt(req.params.id);
     if (!productId) return res.status(400).json({ error: 'Produto inválido.' });
 
@@ -366,27 +307,22 @@ function createAdminRouter(deps) {
     if (preco === null)
       return res.status(400).json({ error: 'Informe um preço válido.' });
 
-    try {
-      const result = await pool.query(
-        `UPDATE produtos
-         SET nome = $1, preco = $2, ativo = $3
-         WHERE id = $4
-         RETURNING id, nome, preco, ativo`,
-        [nome, preco, ativo, productId]
-      );
-      if (!result.rows.length)
-        return res.status(404).json({ error: 'Produto não encontrado.' });
+    const result = await pool.query(
+      `UPDATE produtos
+       SET nome = $1, preco = $2, ativo = $3
+       WHERE id = $4
+       RETURNING id, nome, preco, ativo`,
+      [nome, preco, ativo, productId]
+    );
+    if (!result.rows.length)
+      return res.status(404).json({ error: 'Produto não encontrado.' });
 
-      await invalidateAndRefreshRelatorio();
+    await invalidateAndRefreshRelatorio();
 
-      res.json({ success: true, produto: result.rows[0] });
-    } catch (err) {
-      logError('/admin/produtos PUT', err, req);
-      res.status(500).json({ error: 'Erro ao atualizar produto.' });
-    }
-  });
+    res.json({ success: true, produto: result.rows[0] });
+  }));
 
-  router.delete('/produtos/:id', async (req, res) => {
+  router.delete('/produtos/:id', asyncHandler(async (req, res) => {
     const productId = parsePositiveInt(req.params.id);
     if (!productId) return res.status(400).json({ error: 'Produto inválido.' });
 
@@ -394,32 +330,25 @@ function createAdminRouter(deps) {
       ? req.query.acao
       : 'inativar';
 
-    try {
-      const result =
-        acao === 'excluir'
-          ? await pool.query('DELETE FROM produtos WHERE id = $1 RETURNING id', [productId])
-          : await pool.query(
-            'UPDATE produtos SET ativo = $1 WHERE id = $2 RETURNING id',
-            [acao === 'ativar', productId]
-          );
+    const result =
+      acao === 'excluir'
+        ? await pool.query('DELETE FROM produtos WHERE id = $1 RETURNING id', [productId])
+        : await pool.query(
+          'UPDATE produtos SET ativo = $1 WHERE id = $2 RETURNING id',
+          [acao === 'ativar', productId]
+        );
 
-      if (!result.rows.length)
-        return res.status(404).json({ error: 'Produto não encontrado.' });
+    if (!result.rows.length)
+      return res.status(404).json({ error: 'Produto não encontrado.' });
 
-      await invalidateAndRefreshRelatorio();
+    await invalidateAndRefreshRelatorio();
 
-      res.json({ success: true });
-    } catch (err) {
-      logError('/admin/produtos DELETE', err, req);
-      res.status(500).json({ error: 'Erro ao remover produto.' });
-    }
-  });
+    res.json({ success: true });
+  }));
 
   // Estorna um consumo (soft-hide): o registro permanece em `consumo` (oculto = TRUE)
   // e é registrado em `consumos_ocultos` para auditoria de qual admin executou o estorno.
   async function estornarConsumo(consumoId, idAdmin) {
-    await ensureConsumosOcultosTable();
-
     const consumo = await pool.query(
       'SELECT id, id_usuario FROM consumo WHERE id = $1',
       [consumoId]
@@ -443,16 +372,11 @@ function createAdminRouter(deps) {
     const consumoId = parsePositiveInt(req.params.id);
     if (!consumoId) return res.status(400).json({ error: 'Registro inválido.' });
 
-    try {
-      const { notFound } = await estornarConsumo(consumoId, req.session.userId);
-      if (notFound)
-        return res.status(404).json({ error: 'Registro de consumo não encontrado.' });
+    const { notFound } = await estornarConsumo(consumoId, req.session.userId);
+    if (notFound)
+      return res.status(404).json({ error: 'Registro de consumo não encontrado.' });
 
-      res.json({ success: true });
-    } catch (err) {
-      logError('/admin/consumo estornar', err, req);
-      res.status(500).json({ error: 'Erro ao estornar item.' });
-    }
+    res.json({ success: true });
   }
 
   // Reativa (des-estorna) um consumo: remove a marcação de `consumos_ocultos` e
@@ -461,120 +385,92 @@ function createAdminRouter(deps) {
     const consumoId = parsePositiveInt(req.params.id);
     if (!consumoId) return res.status(400).json({ error: 'Registro inválido.' });
 
-    try {
-      await ensureConsumosOcultosTable();
-      await pool.query('UPDATE consumo SET oculto = FALSE WHERE id = $1', [consumoId]);
-      await pool.query('DELETE FROM consumos_ocultos WHERE id_consumo = $1', [consumoId]);
+    await pool.query('UPDATE consumo SET oculto = FALSE WHERE id = $1', [consumoId]);
+    await pool.query('DELETE FROM consumos_ocultos WHERE id_consumo = $1', [consumoId]);
 
-      const consumoResult = await pool.query(
-        'SELECT id_usuario, data_hora FROM consumo WHERE id = $1',
-        [consumoId]
-      );
-      if (consumoResult.rows.length) {
-        const { id_usuario, data_hora } = consumoResult.rows[0];
-        const resetResult = await pool.query({ ...Q.LAST_RESET, values: [id_usuario] });
-        const lastReset = resetResult.rows[0]?.last_reset;
-        if (lastReset && new Date(data_hora) <= new Date(lastReset)) {
-          await pool.query('UPDATE consumo SET data_hora = NOW() WHERE id = $1', [consumoId]);
-        }
+    const consumoResult = await pool.query(
+      'SELECT id_usuario, data_hora FROM consumo WHERE id = $1',
+      [consumoId]
+    );
+    if (consumoResult.rows.length) {
+      const { id_usuario, data_hora } = consumoResult.rows[0];
+      const resetResult = await pool.query({ ...Q.LAST_RESET, values: [id_usuario] });
+      const lastReset = resetResult.rows[0]?.last_reset;
+      if (lastReset && new Date(data_hora) <= new Date(lastReset)) {
+        await pool.query('UPDATE consumo SET data_hora = NOW() WHERE id = $1', [consumoId]);
       }
-
-      await invalidateAndRefreshRelatorio();
-      res.json({ success: true });
-    } catch (err) {
-      logError('/admin/consumo reativar', err, req);
-      res.status(500).json({ error: 'Erro ao reativar item.' });
     }
+
+    await invalidateAndRefreshRelatorio();
+    res.json({ success: true });
   }
 
-  // Rotas canônicas e aliases retrocompatíveis
-  router.post('/consumo/:id/estornar', handleEstornar);
-  router.post('/consumo/:id/ocultar', handleEstornar);
-  router.post('/consumo/:id/reativar', handleReativar);
-  router.post('/consumo/:id/restaurar', handleReativar);
+  // Rotas canônicas
+  router.post('/consumo/:id/estornar', asyncHandler(handleEstornar));
+  router.post('/consumo/:id/reativar', asyncHandler(handleReativar));
 
-    router.get('/ocultos/:id_usuario', async (req, res) => {
+  router.get('/ocultos/:id_usuario', asyncHandler(async (req, res) => {
     const userId = parsePositiveInt(req.params.id_usuario);
     if (!userId) return res.status(400).json({ error: 'Usuário inválido.' });
 
     const { page, limit, offset } = parsePagination(req.query, 20, 100);
 
-    try {
-      await ensureConsumosOcultosTable();
+    const resetResult = await pool.query({ ...Q.LAST_RESET, values: [userId] });
+    const lastReset = resetResult.rows[0].last_reset;
 
-      const resetResult = await pool.query({ ...Q.LAST_RESET, values: [userId] });
-      const lastReset = resetResult.rows[0].last_reset;
+    const [dataResult, countResult] = await Promise.all([
+      pool.query({ ...Q.OCULTOS_DATA, values: [userId, lastReset, limit, offset] }),
+      pool.query({ ...Q.OCULTOS_COUNT, values: [userId, lastReset] }),
+    ]);
 
-      const [dataResult, countResult] = await Promise.all([
-        pool.query({ ...Q.OCULTOS_DATA, values: [userId, lastReset, limit, offset] }),
-        pool.query({ ...Q.OCULTOS_COUNT, values: [userId, lastReset] }),
-      ]);
+    const total = countResult.rows[0].total_count;
 
-      const total = countResult.rows[0].total_count;
+    res.json({
+      data: dataResult.rows,
+      pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+    });
+  }));
 
-      res.json({
-        data: dataResult.rows,
-        pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
-      });
-    } catch (err) {
-      logError('/admin/ocultos', err, req);
-      res.status(500).json({ error: 'Erro ao buscar itens ocultos.' });
-    }
-  });
-
-  router.post('/zerar-individual/:id_usuario', async (req, res) => {
+  router.post('/zerar-individual/:id_usuario', asyncHandler(async (req, res) => {
     const userId = parsePositiveInt(req.params.id_usuario);
     if (!userId) return res.status(400).json({ error: 'Usuário inválido.' });
 
-    try {
-      const user = await pool.query(
-        'SELECT id FROM usuarios WHERE id = $1',
-        [userId]
-      );
-      if (!user.rows.length)
-        return res.status(404).json({ error: 'Usuário não encontrado.' });
+    const user = await pool.query(
+      'SELECT id FROM usuarios WHERE id = $1',
+      [userId]
+    );
+    if (!user.rows.length)
+      return res.status(404).json({ error: 'Usuário não encontrado.' });
 
-      await pool.query('INSERT INTO zeragens (id_usuario) VALUES ($1)', [userId]);
+    await zerarSaldoIndividual(userId);
+    await invalidateAndRefreshRelatorio();
 
-      await invalidateAndRefreshRelatorio();
+    res.json({ success: true, message: 'Conta zerada (dados preservados no banco).' });
+  }));
 
-      res.json({ success: true, message: 'Conta zerada (dados preservados no banco).' });
-    } catch (err) {
-      logError('/admin/zerar-individual', err, req);
-      res.status(500).json({ error: 'Erro ao zerar conta.' });
-    }
-  });
+  router.post('/zerar-em-massa', asyncHandler(async (req, res) => {
+    // Filtro (total_gasto > 0) e escrita rodam no Postgres numa única
+    // instrução INSERT...SELECT — atômica, sem trazer a tabela inteira pro
+    // Node e sem a race condition de ler o relatório numa query e escrever
+    // em outra.
+    const userIds = await zerarTodosElegiveis();
 
-  router.post('/zerar-em-massa', async (req, res) => {
-    try {
-      await ensureConsumosOcultosTable();
-
-      // Filtro (total_gasto > 0) e escrita rodam no Postgres numa única
-      // instrução INSERT...SELECT — atômica, sem trazer a tabela inteira pro
-      // Node e sem a race condition de ler o relatório numa query e escrever
-      // em outra.
-      const userIds = await zerarTodosElegiveis();
-
-      if (!userIds.length) {
-        return res.json({
-          success: true,
-          total_usuarios: 0,
-          message: 'Nenhum usuário com saldo atual para zerar.',
-        });
-      }
-
-      await invalidateAndRefreshRelatorio();
-
-      res.json({
+    if (!userIds.length) {
+      return res.json({
         success: true,
-        total_usuarios: userIds.length,
-        message: 'Saldos zerados com sucesso (dados preservados no banco).',
+        total_usuarios: 0,
+        message: 'Nenhum usuário com saldo atual para zerar.',
       });
-    } catch (err) {
-      logError('/admin/zerar-em-massa', err, req);
-      res.status(500).json({ error: 'Erro ao zerar saldos.' });
     }
-  });
+
+    await invalidateAndRefreshRelatorio();
+
+    res.json({
+      success: true,
+      total_usuarios: userIds.length,
+      message: 'Saldos zerados com sucesso (dados preservados no banco).',
+    });
+  }));
 
   return router;
 }

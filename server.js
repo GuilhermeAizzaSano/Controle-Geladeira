@@ -12,6 +12,7 @@ const {
   parseQuantidade,
   MAX_QUANTIDADE,
 } = require('./lib/parsers');
+const { asyncHandler } = require('./lib/async-handler');
 const { createPublicRouter } = require('./routes/public-routes');
 const { createAdminRouter } = require('./routes/admin-routes');
 const { createSessionStore } = require('./lib/session-store');
@@ -59,20 +60,18 @@ const relatorio = createRelatorio({ pool, Q });
 const auth = createAuth({ pool, sessionStore, cookieHelpers, logError });
 const { requireAuth, requireAdmin, requireCsrf, generateToken, adminChallenges } = auth;
 
-app.get('/me', requireAuth, async (req, res) => {
-  try {
-    const result = await pool.query(
-      'SELECT id, nome FROM usuarios WHERE id = $1',
-      [req.session.userId]
-    );
-    if (!result.rows.length) return res.status(404).json({ error: 'Usuário não encontrado.' });
-    const { id, nome } = result.rows[0];
-    res.json({ usuario: { id, nome, is_admin: req.session.isAdmin } });
-  } catch (err) {
-    logError('GET /me', err, req);
-    res.status(500).json({ error: 'Erro interno.' });
-  }
-});
+app.get('/me', requireAuth, asyncHandler(async (req, res) => {
+  const result = await pool.query(
+    'SELECT id, nome FROM usuarios WHERE id = $1',
+    [req.session.userId]
+  );
+  if (!result.rows.length) return res.status(404).json({ error: 'Usuário não encontrado.' });
+  const { id, nome } = result.rows[0];
+  res.json({
+    usuario: { id, nome, is_admin: req.session.isAdmin },
+    config: { max_quantidade: MAX_QUANTIDADE },
+  });
+}));
 
 app.use(createPublicRouter({
   pool,
@@ -117,6 +116,7 @@ app.use('/admin', createAdminRouter({
   ensureConsumosOcultosTable: schema.ensureConsumosOcultosTable,
   invalidateAndRefreshRelatorio: relatorio.invalidateAndRefreshRelatorio,
   getAdminRelatorioRows: relatorio.getAdminRelatorioRows,
+  zerarSaldoIndividual: relatorio.zerarSaldoIndividual,
   zerarTodosElegiveis: relatorio.zerarTodosElegiveis,
   withTransaction,
   parseBoolean,

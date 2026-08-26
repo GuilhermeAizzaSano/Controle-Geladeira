@@ -30,6 +30,10 @@ export const state = {
     detail: { page: 1, limit: 20, total: 0, totalPages: 1 },
     ocultos: { page: 1, limit: 20, total: 0, totalPages: 1 },
   },
+
+  config: {
+    max_quantidade: 20,
+  },
 };
 
 // Alguns módulos (admin.js, produtos.js, usuarios.js) mantêm dados em cache

@@ -1,7 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const {
-  parseCookies, setSessionCookie, clearSessionCookie, setCsrfCookie,
+  parseCookies, setSessionCookie, clearSessionCookie, setCsrfCookie, clearCsrfCookie,
   parseCsrfTokenFromCookie, parseSessionTokenFromCookie,
 } = require('../lib/cookie-helpers');
 
@@ -53,6 +53,15 @@ test('setCsrfCookie must NOT be HttpOnly', () => {
   const val = res._headers.find(([n]) => n === 'Set-Cookie')[1];
   assert.ok(val.includes('csrf=csrftok'));
   assert.ok(!val.includes('HttpOnly'), 'csrf cookie must be readable by JS');
+});
+
+test('clearCsrfCookie', () => {
+  const res = makeRes();
+  clearCsrfCookie(res, false);
+  const val = res._headers.find(([n]) => n === 'Set-Cookie')[1];
+  assert.ok(val.includes('csrf=;'));
+  assert.ok(val.includes('Max-Age=0'));
+  assert.ok(!val.includes('HttpOnly'));
 });
 
 test('parseSessionTokenFromCookie / parseCsrfTokenFromCookie', () => {

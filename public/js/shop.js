@@ -284,14 +284,16 @@ export async function loadHistory(pageNum = null) {
 
 registerPaginationCallback('loadHistory', loadHistory);
 
-// Espelha MAX_QUANTIDADE de lib/parsers.js. O servidor é a autoridade — isto
-// aqui só evita que o usuário chegue a enviar um valor que seria recusado.
-const BUY_QTY_MAX = 20;
+/** Obtém a quantidade máxima permitida dinamicamente do estado da aplicação. */
+function getMaxQty() {
+  return state.config?.max_quantidade || 20;
+}
 
 /** Lê a quantidade atual do campo; 1 se estiver vazio ou inválido. */
 export function getBuyQty() {
+  const maxQty = getMaxQty();
   const n = parseInt(document.getElementById('buy-qty').value, 10);
-  return Number.isInteger(n) && n >= 1 ? Math.min(n, BUY_QTY_MAX) : 1;
+  return Number.isInteger(n) && n >= 1 ? Math.min(n, maxQty) : 1;
 }
 
 /**
@@ -299,11 +301,12 @@ export function getBuyQty() {
  * subtotal e desabilita os botões nos extremos.
  */
 export function setBuyQty(n) {
-  const qty = Math.min(Math.max(Number.isInteger(n) ? n : 1, 1), BUY_QTY_MAX);
+  const maxQty = getMaxQty();
+  const qty = Math.min(Math.max(Number.isInteger(n) ? n : 1, 1), maxQty);
 
   document.getElementById('buy-qty').value = qty;
   document.getElementById('btn-qty-minus').disabled = qty <= 1;
-  document.getElementById('btn-qty-plus').disabled  = qty >= BUY_QTY_MAX;
+  document.getElementById('btn-qty-plus').disabled  = qty >= maxQty;
 
   const preco = state.selectedProduct ? Number(state.selectedProduct.preco) : 0;
   document.getElementById('buy-subtotal').textContent =

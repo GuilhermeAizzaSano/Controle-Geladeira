@@ -126,6 +126,7 @@ async function doLogin() {
       const data = await apiCall('POST', '/login/admin', { challenge: adminChallenge, senha }, { skipSessionExpiredHandling: true });
       window._sessionExpired = false;
       state.currentUser = data.usuario;
+      if (data.config) state.config = { ...state.config, ...data.config };
       resetLoginUI();
       _applyPostLoginUI();
     } catch (err) {
@@ -173,6 +174,7 @@ async function doLogin() {
 
     window._sessionExpired = false;
     state.currentUser = data.usuario;
+    if (data.config) state.config = { ...state.config, ...data.config };
     _applyPostLoginUI();
   } catch (err) {
     if (err.status === 429) {
@@ -248,6 +250,7 @@ async function initSession() {
   try {
     const data = await apiCall('GET', '/me', null, { skipSessionExpiredHandling: true });
     state.currentUser = data.usuario;
+    if (data.config) state.config = { ...state.config, ...data.config };
     window._sessionExpired = false;
     _applyPostLoginUI();
   } catch (err) {
