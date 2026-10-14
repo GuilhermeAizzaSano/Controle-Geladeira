@@ -1,4 +1,5 @@
 const express = require('express');
+const compression = require('compression');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
@@ -45,6 +46,7 @@ app.disable('x-powered-by');
 
 app.use(securityHeaders(config));
 app.use(requestTimeout(config));
+app.use(compression({ threshold: 1024 })); // comprime tudo > 1 KB
 
 app.use(cors(config.corsOptions));
 app.use(express.json({ limit: '100kb' }));

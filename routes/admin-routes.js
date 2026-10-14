@@ -350,23 +350,26 @@ function createAdminRouter(deps) {
   // Estorna um consumo (soft-hide): o registro permanece em `consumo` (oculto = TRUE)
   // e é registrado em `consumos_ocultos` para auditoria de qual admin executou o estorno.
   async function estornarConsumo(consumoId, idAdmin) {
-    const consumo = await pool.query(
-      'SELECT id, id_usuario FROM consumo WHERE id = $1',
-      [consumoId]
-    );
-    if (!consumo.rows.length) return { notFound: true };
+    return withTransaction(pool, async client => {
+      const consumo = await client.query(
+        'SELECT id, id_usuario, oculto FROM consumo WHERE id = $1 FOR UPDATE',
+        [consumoId]
+      );
+      if (!consumo.rows.length) return { notFound: true };
 
-    await pool.query('UPDATE consumo SET oculto = TRUE WHERE id = $1', [consumoId]);
+      if (!consumo.rows[0].oculto) {
+        await client.query('UPDATE consumo SET oculto = TRUE WHERE id = $1', [consumoId]);
+      }
 
-    await pool.query(
-      `INSERT INTO consumos_ocultos (id_consumo, id_usuario, id_admin)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (id_consumo) DO NOTHING`,
-      [consumoId, consumo.rows[0].id_usuario, idAdmin ?? null]
-    );
+      await client.query(
+        `INSERT INTO consumos_ocultos (id_consumo, id_usuario, id_admin)
+         VALUES ($1, $2, $3)
+         ON CONFLICT (id_consumo) DO NOTHING`,
+        [consumoId, consumo.rows[0].id_usuario, idAdmin ?? null]
+      );
 
-    await invalidateAndRefreshRelatorio();
-    return { notFound: false };
+      return { notFound: false };
+    });
   }
 
   async function handleEstornar(req, res) {
@@ -377,6 +380,7 @@ function createAdminRouter(deps) {
     if (notFound)
       return res.status(404).json({ error: 'Registro de consumo não encontrado.' });
 
+    await invalidateAndRefreshRelatorio();
     res.json({ success: true });
   }
 
@@ -386,20 +390,29 @@ function createAdminRouter(deps) {
     const consumoId = parsePositiveInt(req.params.id);
     if (!consumoId) return res.status(400).json({ error: 'Registro inválido.' });
 
-    await pool.query('UPDATE consumo SET oculto = FALSE WHERE id = $1', [consumoId]);
-    await pool.query('DELETE FROM consumos_ocultos WHERE id_consumo = $1', [consumoId]);
+    const result = await withTransaction(pool, async client => {
+      const consumoResult = await client.query(
+        'SELECT id, id_usuario, data_hora FROM consumo WHERE id = $1 FOR UPDATE',
+        [consumoId]
+      );
+      if (!consumoResult.rows.length) return { notFound: true };
 
-    const consumoResult = await pool.query(
-      'SELECT id_usuario, data_hora FROM consumo WHERE id = $1',
-      [consumoId]
-    );
-    if (consumoResult.rows.length) {
       const { id_usuario, data_hora } = consumoResult.rows[0];
-      const resetResult = await pool.query({ ...Q.LAST_RESET, values: [id_usuario] });
+
+      await client.query('UPDATE consumo SET oculto = FALSE WHERE id = $1', [consumoId]);
+      await client.query('DELETE FROM consumos_ocultos WHERE id_consumo = $1', [consumoId]);
+
+      const resetResult = await client.query({ ...Q.LAST_RESET, values: [id_usuario] });
       const lastReset = resetResult.rows[0]?.last_reset;
       if (lastReset && new Date(data_hora) <= new Date(lastReset)) {
-        await pool.query('UPDATE consumo SET data_hora = NOW() WHERE id = $1', [consumoId]);
+        await client.query('UPDATE consumo SET data_hora = NOW() WHERE id = $1', [consumoId]);
       }
+
+      return { notFound: false };
+    });
+
+    if (result.notFound) {
+      return res.status(404).json({ error: 'Registro de consumo não encontrado.' });
     }
 
     await invalidateAndRefreshRelatorio();
