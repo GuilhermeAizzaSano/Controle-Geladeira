@@ -470,6 +470,9 @@ export async function loadDetailPage(pageNum = null) {
     updateDetailStats(stats);
 
     if (!data.length) {
+      if (page > 1) {
+        return loadDetailPage(page - 1);
+      }
       setRegion('detail-body', { status: 'empty' });
       return;
     }
@@ -707,6 +710,9 @@ export async function loadOcultosPage(pageNum = null) {
     state.pagState.ocultos = { ...state.pagState.ocultos, ...pagination };
 
     if (!data.length) {
+      if (page > 1) {
+        return loadOcultosPage(page - 1);
+      }
       setRegion('ocultos-body', { status: 'empty' });
       return;
     }

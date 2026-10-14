@@ -241,6 +241,9 @@ export async function loadHistory(pageNum = null) {
     document.getElementById('my-total').textContent = fmtBRL(pagination.total_valor);
 
     if (!data.length) {
+      if (page > 1) {
+        return loadHistory(page - 1);
+      }
       tbody.innerHTML = html`
         <tr>
           <td colspan="4">
